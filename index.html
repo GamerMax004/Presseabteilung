@@ -185,23 +185,23 @@ body { font-family:'Source Sans 3',sans-serif; background:var(--bg); color:var(-
     <input type="password" id="apikey-input" placeholder="sk-ant-…" autocomplete="off"/>
     <div id="apikey-error"></div>
     <button id="apikey-submit" onclick="submitApiKey()">Bestätigen &amp; starten</button>
-    <div class="apikey-hint">Ihr Schlüssel verlässt diesen Browser nicht</div>
+    <div class="apikey-hint">🔒 Ihr Schlüssel verlässt diesen Browser nicht</div>
   </div>
 </div>
 
 <nav id="topnav">
   <div class="nav-brand">Presse<span>Portal</span></div>
   <div class="nav-tabs">
-    <button class="nav-tab" id="tab-diagram" onclick="showPage('diagram')">Diagrammeditor</button>
-    <button class="nav-tab active" id="tab-spell" onclick="showPage('spell')">Rechtschreibprüfung</button>
-    <button class="nav-tab" id="tab-improve" onclick="showPage('improve')">Verbesserungsvorschläge</button>
+    <button class="nav-tab" id="tab-diagram" onclick="showPage('diagram')">📊 Diagramm-Editor</button>
+    <button class="nav-tab active" id="tab-spell" onclick="showPage('spell')">🔍 Rechtschreibprüfung</button>
+    <button class="nav-tab" id="tab-improve" onclick="showPage('improve')">✨ Verbesserungsvorschläge</button>
   </div>
 </nav>
 
 <!-- DIAGRAM -->
 <div class="page" id="page-diagram">
   <div id="diagram-sidebar">
-    <div class="diagram-sidebar-header"><h1>Diagrammeditor</h1></div>
+    <div class="diagram-sidebar-header"><h1>Diagramm-Editor</h1></div>
     <div class="diagram-sidebar-body">
       <div>
         <div class="section-label">Diagrammtyp</div>
@@ -247,7 +247,7 @@ body { font-family:'Source Sans 3',sans-serif; background:var(--bg); color:var(-
 <div class="page active" id="page-spell">
   <div class="tool-header">
     <div>
-      <h1>Rechtschreibungprüfung</h1>
+      <h1>Rechtschreibung &amp; Grammatik</h1>
       <p>Prüft Rechtschreibung, Grammatik, Großschreibung, Satzstellung, Ausdruck, Wortfehler &amp; Satzzeichen — farbig nach Typ markiert</p>
     </div>
     <div class="tool-actions">
@@ -327,12 +327,12 @@ body { font-family:'Source Sans 3',sans-serif; background:var(--bg); color:var(-
 // ================================================================
 // API KEY
 // ================================================================
-let _apiKey = sessionStorage.getItem('pp_apikey') || '';
+let _apiKey = '';
 function submitApiKey() {
   const val = document.getElementById('apikey-input').value.trim();
   const err = document.getElementById('apikey-error');
   if (!val.startsWith('sk-ant-') || val.length < 20) { err.textContent = 'Ungültiger Schlüssel — er sollte mit „sk-ant-" beginnen.'; return; }
-  _apiKey = val; sessionStorage.setItem('pp_apikey', val);
+  _apiKey = val; sessionStorage.setItem('pp_apikey_session', val);
   document.getElementById('apikey-overlay').style.display = 'none';
 }
 function getApiKey() {
@@ -341,7 +341,7 @@ function getApiKey() {
 }
 document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('apikey-input').addEventListener('keydown', e => { if (e.key==='Enter') submitApiKey(); });
-  if (_apiKey) document.getElementById('apikey-overlay').style.display = 'none';
+  // Always ask for API key on page load — do not auto-hide
 });
 
 function showPage(p) {
@@ -565,7 +565,8 @@ Keine Fehler gefunden: {"errors":[]}`,
     });
 
   } catch(err) {
-    document.getElementById('spell-output').innerHTML = `<div style="color:#ff6666;padding:16px;font-size:13px">Fehler: ${escapeHtml(err.message)}</div>`;
+    const spellOut = document.getElementById('spell-output');
+    spellOut.innerHTML = `<div class="tool-placeholder"><div class="icon" style="opacity:1;font-size:22px">⚠️</div><p style="color:#ff6666;max-width:320px">Fehler: ${escapeHtml(err.message)}</p></div>`;
   } finally {
     btn.disabled = false;
     btn.innerHTML = 'Text prüfen';
@@ -701,7 +702,7 @@ async function runImprove() {
     });
 
   } catch(err) {
-    document.getElementById('improve-result').innerHTML = `<div style="color:#ff6666;padding:20px;font-size:13px">Fehler: ${escapeHtml(err.message)}</div>`;
+    document.getElementById('improve-result').innerHTML = `<div class="tool-placeholder"><div class="icon" style="opacity:1;font-size:22px">⚠️</div><p style="color:#ff6666;max-width:320px">Fehler: ${escapeHtml(err.message)}</p></div>`;
   } finally {
     btn.disabled = false;
     btn.innerHTML = 'Text bewerten';
