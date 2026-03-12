@@ -1,13 +1,13 @@
 services:
   - type: web
     name: presseportal
-    runtime: node
-    buildCommand: "npm install"
-    startCommand: "node server.js"
+    runtime: static
+    buildCommand: "sed -i 's|__API_KEY__|'\"$API_KEY\"'|g' index.html"
+    staticPublishPath: .
     pullRequestPreviewsEnabled: false
     envVars:
-      - key: ANTHROPIC_API_KEY
-        sync: false        # ← Render fragt dich beim Deploy nach dem Wert
+      - key: API_KEY
+        sync: false
     headers:
       - path: /*
         name: X-Frame-Options
