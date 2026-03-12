@@ -2,11 +2,11 @@ services:
   - type: web
     name: presseportal
     runtime: static
-    buildCommand: "sed -i 's|__API_KEY__|'\"$API_KEY\"'|g' index.html"
+    buildCommand: sed -i "s|__API_KEY__|${API-Key}|g" index.html
     staticPublishPath: .
     pullRequestPreviewsEnabled: false
     envVars:
-      - key: API_KEY
+      - key: API-Key
         sync: false
     headers:
       - path: /*
