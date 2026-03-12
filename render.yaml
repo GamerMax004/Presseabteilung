@@ -1,10 +1,13 @@
 services:
   - type: web
     name: presseportal
-    runtime: static
-    staticPublishPath: .
-    buildCommand: ""
+    runtime: node
+    buildCommand: "npm install"
+    startCommand: "node server.js"
     pullRequestPreviewsEnabled: false
+    envVars:
+      - key: ANTHROPIC_API_KEY
+        sync: false        # ← Render fragt dich beim Deploy nach dem Wert
     headers:
       - path: /*
         name: X-Frame-Options
