@@ -10,7 +10,7 @@
 :root{
   --red:#cc0000;--dark:#0f0f0f;--panel:#161616;--surface:#1e1e1e;
   --surf2:#252525;--border:#2a2a2a;--border2:#363636;--muted:#5a5a5a;
-  --text2:#999;--text:#edeae5;--bg:#0a0a0a;--green:#22c55e;__API_KEY__
+  --text2:#999;--text:#edeae5;--bg:#0a0a0a;--green:#22c55e;
   --blue:#3b82f6;--nav-h:54px;--hdr-h:64px;--lbl-h:34px;
 }
 html,body{height:100%;font-family:'Source Sans 3',sans-serif;background:var(--bg);color:var(--text);overflow:hidden;}
@@ -278,8 +278,12 @@ textarea.tarea::placeholder{color:#383838;}
         <span>KI-Bewertung</span>
         <span id="improve-badge" style="display:none;text-transform:none;letter-spacing:0;font-weight:700;font-size:10px;"></span>
       </div>
-      <div class="result-area" id="improve-result">
-        <div class="placeholder" style="flex:1"><div class="placeholder-icon">✨</div><p>Text eingeben und auf „Text bewerten" klicken.</p></div>
+      <div class="output-area" id="improve-out">
+        <div class="placeholder"><div class="placeholder-icon">✨</div><p>Text eingeben und auf „Text bewerten" klicken, um eine KI-Bewertung zu erhalten.</p></div>
+      </div>
+      <div id="improve-details" class="errors-strip" style="display:none">
+        <div class="errors-strip-head">Detailliertes Feedback</div>
+        <div id="improve-items"></div>
       </div>
     </div>
   </div>
@@ -295,30 +299,33 @@ textarea.tarea::placeholder{color:#383838;}
 'use strict';
 
 // ── API KEY (injected by Render build) ───────────────
-const _K = 'b62b601e1ec5497d96f434171f2b5e11.MQDhwE5mQyqCvQH5ZNIf0VcF';
+const _K = '__API_KEY__';
 
-// ── API CALL ─────────────────────────────────────────
+// ── API CALL — Ollama Cloud ───────────────────────────
 async function apiCall(system, text, maxTokens) {
   setStatus('loading');
   try {
-    const r = await fetch('https://api.anthropic.com/v1/messages', {
+    const r = await fetch('https://ollama.com/v1/chat/completions', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'x-api-key': _K,
-        'anthropic-version': '2023-06-01',
-        'anthropic-dangerous-direct-browser-access': 'true'
+        'Authorization': 'Bearer ' + _K
       },
       body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
+        model: 'gpt-oss:120b',
         max_tokens: maxTokens || 1200,
-        system, messages: [{ role:'user', content:text }]
+        messages: [
+          { role: 'system', content: system },
+          { role: 'user',   content: text   }
+        ]
       })
     });
     const d = await r.json();
-    if (!r.ok || !d.content) throw new Error(d?.error?.message || ('Fehler '+r.status));
+    if (!r.ok) throw new Error(d?.error?.message || ('Fehler ' + r.status));
+    const msg = d?.choices?.[0]?.message?.content;
+    if (!msg) throw new Error('Keine Antwort vom Modell erhalten.');
     setStatus('ok');
-    return d.content.map(i=>i.text||'').join('');
+    return msg;
   } catch(e) { setStatus('err'); throw e; }
 }
 
@@ -509,8 +516,10 @@ function scoreColor(n){return n>=8?'#22c55e':n>=5?'#f5c518':'#cc0000';}
 function scoreLabel(n){return n>=9?'Hervorragend':n>=8?'Sehr gut':n>=7?'Gut':n>=6?'Befriedigend':n>=5?'Ausreichend':n>=4?'Verbesserungsbedarf':'Überarbeitung nötig';}
 
 function clearImprove(){
-  document.getElementById('improve-input').value='';document.getElementById('improve-cc').textContent='0 Zeichen';
-  document.getElementById('improve-result').innerHTML='<div class="placeholder" style="flex:1"><div class="placeholder-icon">✨</div><p>Text eingeben und auf „Text bewerten" klicken.</p></div>';
+  document.getElementById('improve-input').value='';
+  document.getElementById('improve-cc').textContent='0 Zeichen';
+  document.getElementById('improve-out').innerHTML='<div class="placeholder"><div class="placeholder-icon">✨</div><p>Text eingeben und auf „Text bewerten" klicken, um eine KI-Bewertung zu erhalten.</p></div>';
+  document.getElementById('improve-details').style.display='none';
   document.getElementById('improve-badge').style.display='none';
 }
 
@@ -518,31 +527,38 @@ async function runImprove(){
   const text=document.getElementById('improve-input').value.trim();if(!text)return;
   const btn=document.getElementById('improve-btn');btn.disabled=true;btn.innerHTML='<div class="mini-spin"></div> Bewertet…';
   document.getElementById('improve-badge').style.display='none';
-  showLoader('improve-result','KI bewertet Ihren Text…');animTo('improve-result',88,6000);
+  document.getElementById('improve-details').style.display='none';
+  showLoader('improve-out','KI bewertet Ihren Text…');animTo('improve-out',88,6000);
   try{
     const raw=await apiCall(`Du bist ein Experte für professionelle deutschsprachige Texte einer Presseabteilung auf einem Roleplay-Discord-Server. Discord-Markdown und RP-Begriffe sind normal. Bewerte Professionalität, Klarheit, Struktur und Wirkung.
 NUR reines JSON ohne Backticks: {"score":<1-10>,"summary":"2-3 Sätze","positives":["..."],"negatives":["..."],"suggestions":["..."]}`,text,1000);
     let p;try{p=JSON.parse(raw.replace(/```json|```/g,'').trim());}catch(e){throw new Error('KI-Antwort konnte nicht verarbeitet werden.');}
     const score=Math.min(10,Math.max(1,parseInt(p.score)||5)),color=scoreColor(score),label=scoreLabel(score);
-    animTo('improve-result',100,300,()=>setTimeout(()=>{
-      const badge=document.getElementById('improve-badge');badge.textContent=score+'/10 — '+label;badge.style.color=color;badge.style.display='inline-block';
+    animTo('improve-out',100,300,()=>setTimeout(()=>{
+      // Badge in panel-bar
+      const badge=document.getElementById('improve-badge');
+      badge.textContent=score+'/10 — '+label;badge.style.color=color;badge.style.display='inline-block';
+      // Score ring + summary in output-area (same style as spell-out)
       const r=32,circ=2*Math.PI*r,offset=circ-(score/10)*circ;
-      const ph=(p.positives||[]).map(x=>`<div class="fb"><div class="fb-dot p"></div><div>${esc(x)}</div></div>`).join('');
-      const nh=(p.negatives||[]).map(x=>`<div class="fb"><div class="fb-dot n"></div><div>${esc(x)}</div></div>`).join('');
-      const sh=(p.suggestions||[]).map(x=>`<div class="fb"><div class="fb-dot s"></div><div>${esc(x)}</div></div>`).join('');
-      document.getElementById('improve-result').innerHTML=`
-        <div class="score-box">
-          <div class="score-ring">
-            <svg width="70" height="70"><circle cx="35" cy="35" r="${r}" fill="none" stroke="var(--border2)" stroke-width="5"/><circle cx="35" cy="35" r="${r}" fill="none" stroke="${color}" stroke-width="5" stroke-linecap="round" stroke-dasharray="${circ}" stroke-dashoffset="${offset}"/></svg>
-            <div class="score-overlay"><div class="score-num" style="color:${color}">${score}</div><div class="score-den">/ 10</div></div>
-          </div>
-          <div class="score-info"><h2 style="color:${color}">${label}</h2><p>${esc(p.summary||'')}</p></div>
+      document.getElementById('improve-out').innerHTML=`<div class="score-box" style="background:none;border:none;padding:0 0 18px 0;margin-bottom:18px;border-bottom:1px solid var(--border2);">
+        <div class="score-ring">
+          <svg width="70" height="70"><circle cx="35" cy="35" r="${r}" fill="none" stroke="var(--border2)" stroke-width="5"/><circle cx="35" cy="35" r="${r}" fill="none" stroke="${color}" stroke-width="5" stroke-linecap="round" stroke-dasharray="${circ}" stroke-dashoffset="${offset}"/></svg>
+          <div class="score-overlay"><div class="score-num" style="color:${color}">${score}</div><div class="score-den">/ 10</div></div>
         </div>
-        ${ph?`<div class="impr-section"><h3 class="h3-pos">✓ Stärken</h3>${ph}</div>`:''}
-        ${nh?`<div class="impr-section"><h3 class="h3-neg">✗ Schwächen</h3>${nh}</div>`:''}
-        ${sh?`<div class="impr-section"><h3 class="h3-sug">→ Verbesserungsvorschläge</h3>${sh}</div>`:''}`;
+        <div class="score-info"><h2 style="color:${color};font-size:14px;font-weight:700;margin-bottom:4px;">${label}</h2><p style="font-size:12px;color:var(--text2);line-height:1.5;">${esc(p.summary||'')}</p></div>
+      </div>`;
+      // Feedback in errors-strip (same as spell error list)
+      const ph=(p.positives||[]).map(x=>`<div class="err-item"><span class="err-word" style="background:#166534;color:#86efac;min-width:52px;text-align:center;">✓</span><span class="err-fix" style="color:var(--text2)">${esc(x)}</span></div>`).join('');
+      const nh=(p.negatives||[]).map(x=>`<div class="err-item"><span class="err-word" style="background:#7f1d1d;color:#fca5a5;min-width:52px;text-align:center;">✗</span><span class="err-fix" style="color:var(--text2)">${esc(x)}</span></div>`).join('');
+      const sh=(p.suggestions||[]).map(x=>`<div class="err-item"><span class="err-word" style="background:#1e3a5f;color:#93c5fd;min-width:52px;text-align:center;">→</span><span class="err-fix" style="color:var(--text2)">${esc(x)}</span></div>`).join('');
+      const detailEl=document.getElementById('improve-items');
+      detailEl.innerHTML=`
+        ${ph?`<div class="errors-strip-head" style="color:#22c55e">✓ Stärken</div>${ph}`:''}
+        ${nh?`<div class="errors-strip-head" style="color:#cc0000;border-top:1px solid var(--border)">✗ Schwächen</div>${nh}`:''}
+        ${sh?`<div class="errors-strip-head" style="color:#3b82f6;border-top:1px solid var(--border)">→ Verbesserungsvorschläge</div>${sh}`:''}`;
+      document.getElementById('improve-details').style.display='block';
     },120));
-  }catch(e){document.getElementById('improve-result').innerHTML=`<div class="placeholder"><div class="placeholder-icon">⚠️</div><p style="color:#ff6666">${esc(e.message)}</p></div>`;}
+  }catch(e){document.getElementById('improve-out').innerHTML=`<div class="placeholder"><div class="placeholder-icon">⚠️</div><p style="color:#ff6666">${esc(e.message)}</p></div>`;}
   finally{btn.disabled=false;btn.innerHTML='Text bewerten';}
 }
 
