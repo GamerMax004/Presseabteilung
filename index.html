@@ -5,316 +5,578 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>PressPortal</title>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400&family=Source+Sans+3:wght@300;400;600;700&display=swap');
-* { margin:0; padding:0; box-sizing:border-box; }
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Source+Sans+3:wght@300;400;600;700&display=swap');
+
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
 :root {
-  --red:#cc0000; --dark:#111111; --mid:#1a1a1a; --surface2:#2a2a2a;
-  --border:#2e2e2e; --border2:#3a3a3a; --muted:#666; --text:#e8e4df;
-  --text2:#aaa; --bg:#0d0d0d; --green:#22c55e; --blue:#3b82f6;
-  --nav-h:52px; --tool-h:68px;
+  --red:     #cc0000;
+  --red-dim: #991100;
+  --dark:    #0f0f0f;
+  --panel:   #161616;
+  --surface: #1e1e1e;
+  --surf2:   #252525;
+  --border:  #2a2a2a;
+  --border2: #363636;
+  --muted:   #5a5a5a;
+  --text2:   #999;
+  --text:    #edeae5;
+  --bg:      #0a0a0a;
+  --green:   #22c55e;
+  --blue:    #3b82f6;
+  --yellow:  #f5c518;
+  --nav-h:   54px;
+  --hdr-h:   64px;
+  --lbl-h:   34px;
 }
-body { font-family:'Source Sans 3',sans-serif; background:var(--bg); color:var(--text); height:100vh; display:flex; flex-direction:column; overflow:hidden; }
 
-/* NAV */
-#topnav { background:var(--dark); border-bottom:1px solid var(--border); display:flex; align-items:center; height:var(--nav-h); padding:0 20px; flex-shrink:0; z-index:100; }
-.nav-brand { font-family:'Playfair Display',serif; font-size:15px; color:#ddc8c8; letter-spacing:0.05em; margin-right:28px; white-space:nowrap; }
-.nav-brand span { color:var(--red); }
-.nav-tabs { display:flex; flex:1; }
-.nav-tab { height:var(--nav-h); padding:0 18px; display:flex; align-items:center; gap:7px; font-size:11px; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; color:var(--muted); cursor:pointer; border:none; border-bottom:2px solid transparent; background:none; font-family:inherit; transition:color .15s,border-color .15s; white-space:nowrap; }
-.nav-tab:hover { color:var(--text2); }
-.nav-tab.active { color:var(--text); border-bottom-color:var(--red); }
+html, body {
+  height: 100%;
+  font-family: 'Source Sans 3', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  overflow: hidden;
+}
 
-/* PAGES */
-.page { display:none; flex:1; overflow:hidden; height:calc(100vh - var(--nav-h)); }
-.page.active { display:flex; }
-#page-spell, #page-improve { flex-direction:column; }
+/* ─── SCROLLBAR ───────────────────────────────────── */
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+::-webkit-scrollbar-thumb:hover { background: var(--muted); }
 
-/* TOOL LAYOUT */
-.tool-header { height:var(--tool-h); background:var(--dark); border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; padding:0 24px; flex-shrink:0; }
-.tool-header h1 { font-family:'Playfair Display',serif; font-size:18px; color:#ddc8c8; line-height:1; margin-bottom:3px; }
-.tool-header p { font-size:11px; color:var(--muted); }
-.tool-actions { display:flex; gap:8px; align-items:center; }
-.tool-body { flex:1; display:grid; grid-template-columns:1fr 1fr; min-height:0; }
-.tool-panel-left { display:flex; flex-direction:column; border-right:1px solid var(--border); overflow:hidden; }
-.tool-panel-right { display:flex; flex-direction:column; overflow:hidden; }
-.panel-label { height:36px; background:var(--dark); border-bottom:1px solid var(--border); padding:0 18px; font-size:9.5px; font-weight:700; letter-spacing:0.12em; text-transform:uppercase; color:var(--muted); display:flex; align-items:center; justify-content:space-between; flex-shrink:0; }
-.tool-textarea { flex:1; width:100%; background:var(--mid); border:none; color:var(--text); font-family:'Source Sans 3',sans-serif; font-size:14px; line-height:1.75; padding:18px 20px; resize:none; outline:none; min-height:0; }
-.tool-textarea::placeholder { color:#383838; }
-.tool-output { flex:1; overflow-y:auto; padding:18px 20px; font-size:14px; line-height:1.75; color:var(--text); background:var(--mid); white-space:pre-wrap; word-wrap:break-word; min-height:0; }
-.tool-result { flex:1; overflow-y:auto; background:var(--mid); display:flex; flex-direction:column; min-height:0; }
-.tool-details { border-top:1px solid var(--border); flex-shrink:0; max-height:180px; overflow-y:auto; background:var(--dark); }
-.tool-details h3 { font-size:9.5px; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; color:var(--muted); padding:9px 18px 6px; border-bottom:1px solid var(--border); }
-.tool-placeholder { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:10px; color:var(--muted); text-align:center; padding:40px; }
-.tool-placeholder .icon { font-size:30px; opacity:0.25; }
-.tool-placeholder p { font-size:12px; line-height:1.6; max-width:280px; }
+/* ─── TOP NAV ─────────────────────────────────────── */
+#topnav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 200;
+  height: var(--nav-h);
+  background: var(--dark);
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center;
+  padding: 0 0 0 24px;
+  gap: 0;
+}
 
-/* CIRCLE LOADER */
-.circle-loader-wrap { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:14px; background:var(--mid); }
-.circle-svg { transform:rotate(-90deg); }
-.cl-bg { fill:none; stroke:var(--border2); stroke-width:6; }
-.cl-fg { fill:none; stroke:var(--red); stroke-width:6; stroke-linecap:round; stroke-dasharray:201.06; stroke-dashoffset:201.06; transition:stroke-dashoffset .3s ease; }
-.cl-label { font-size:12px; color:var(--muted); letter-spacing:0.03em; }
+.nav-brand {
+  font-family: 'Playfair Display', serif;
+  font-size: 15px;
+  color: #ddc8c8;
+  letter-spacing: 0.06em;
+  margin-right: 36px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.nav-brand em { color: var(--red); font-style: normal; }
 
-/* Error type highlights */
-.se { border-radius:2px; padding:0 2px; cursor:help; font-weight:600; }
-.se-rs  { background:#f5c518; color:#000; }
-.se-gr  { background:#3b82f6; color:#fff; }
-.se-sz  { background:#a855f7; color:#fff; }
-.se-gk  { background:#f97316; color:#000; }
-.se-au  { background:#06b6d4; color:#000; }
-.se-ss  { background:#ec4899; color:#fff; }
-.se-wf  { background:#84cc16; color:#000; }
+.nav-tabs { display: flex; height: var(--nav-h); flex: 1; }
 
-/* Legend bar */
-.spell-legend { display:flex; flex-wrap:wrap; gap:5px 12px; padding:7px 18px; border-bottom:1px solid var(--border); background:var(--dark); flex-shrink:0; }
-.leg-pill { display:flex; align-items:center; gap:4px; font-size:9.5px; color:var(--text2); letter-spacing:0.03em; }
-.leg-dot { width:9px; height:9px; border-radius:2px; flex-shrink:0; }
+.nav-tab {
+  height: var(--nav-h);
+  padding: 0 22px;
+  display: flex; align-items: center; gap: 8px;
+  font-size: 11px; font-weight: 700;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--muted);
+  background: none; border: none;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  font-family: inherit;
+  transition: color .15s, border-color .15s;
+  white-space: nowrap;
+}
+.nav-tab:hover { color: var(--text2); }
+.nav-tab.active { color: var(--text); border-bottom-color: var(--red); }
+.tab-dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: currentColor; opacity: 0.5;
+  flex-shrink: 0;
+}
+.nav-tab.active .tab-dot { opacity: 1; background: var(--red); }
 
-/* Error list */
-.error-item { display:flex; align-items:flex-start; gap:10px; padding:7px 18px; border-bottom:1px solid #181818; font-size:11.5px; }
-.error-item:last-child { border-bottom:none; }
-.error-word { font-weight:700; padding:1px 6px; border-radius:2px; flex-shrink:0; font-size:11px; white-space:nowrap; }
-.error-fix { color:var(--text2); }
-.error-fix strong { color:var(--green); }
+/* ─── PAGE WRAPPER ────────────────────────────────── */
+.page {
+  display: none;
+  position: fixed;
+  top: var(--nav-h); left: 0; right: 0; bottom: 0;
+}
+.page.active { display: flex; }
 
-/* Improve results */
-.score-box { background:var(--dark); border-bottom:1px solid var(--border); padding:16px 20px; display:flex; align-items:center; gap:16px; flex-shrink:0; }
-.score-ring { position:relative; width:72px; height:72px; flex-shrink:0; }
-.score-ring svg { position:absolute; top:0; left:0; transform:rotate(-90deg); }
-.score-overlay { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; }
-.score-num { font-family:'Playfair Display',serif; font-size:22px; font-weight:700; line-height:1; }
-.score-den { font-size:9px; color:var(--muted); }
-.score-info h2 { font-size:14px; font-weight:700; margin-bottom:3px; }
-.score-info p { font-size:12px; color:var(--text2); line-height:1.5; }
-.improve-section { padding:14px 20px; border-bottom:1px solid var(--border); }
-.improve-section:last-child { border-bottom:none; }
-.improve-section h3 { font-size:9.5px; font-weight:700; letter-spacing:0.12em; text-transform:uppercase; margin-bottom:10px; }
-.h3-pos { color:var(--green); } .h3-neg { color:var(--red); } .h3-sug { color:var(--blue); }
-.fb { display:flex; gap:9px; margin-bottom:7px; font-size:12.5px; line-height:1.5; color:#bbb; }
-.fb:last-child { margin-bottom:0; }
-.fb-dot { width:5px; height:5px; border-radius:50%; flex-shrink:0; margin-top:7px; }
-.fb-dot.p { background:var(--green); } .fb-dot.n { background:var(--red); } .fb-dot.s { background:var(--blue); }
+/* ─── DIAGRAM PAGE ────────────────────────────────── */
+#page-diagram { flex-direction: row; }
+
+#diag-sidebar {
+  width: 300px; min-width: 300px;
+  background: var(--panel);
+  border-right: 1px solid var(--border);
+  display: flex; flex-direction: column;
+  overflow: hidden; flex-shrink: 0;
+}
+
+.sidebar-head {
+  height: var(--hdr-h);
+  border-bottom: 1px solid var(--border);
+  padding: 0 20px;
+  display: flex; align-items: center; flex-shrink: 0;
+}
+.sidebar-head h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: 16px; color: #ddc8c8;
+}
+
+.sidebar-body {
+  flex: 1; overflow-y: auto;
+  padding: 18px 16px;
+  display: flex; flex-direction: column; gap: 18px;
+}
+
+.sec-label {
+  font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--muted); margin-bottom: 6px;
+}
+
+.sidebar-body input[type="text"],
+.sidebar-body input[type="number"] {
+  width: 100%; background: var(--surf2);
+  border: 1px solid var(--border2);
+  color: var(--text); padding: 7px 10px;
+  font-size: 12px; font-family: inherit;
+  border-radius: 3px; margin-bottom: 6px; outline: none;
+  transition: border-color .15s;
+}
+.sidebar-body input:focus { border-color: var(--red); }
+
+.toggle-row { display: flex; flex-wrap: wrap; gap: 5px; }
+.toggle-btn {
+  flex: 1 1 calc(50% - 3px); padding: 8px 6px;
+  font-size: 11px; font-family: inherit;
+  background: var(--surf2); border: 1px solid var(--border2);
+  color: var(--muted); border-radius: 3px; cursor: pointer;
+  transition: all .15s; white-space: nowrap; text-align: center;
+}
+.toggle-btn.active { background: var(--red); border-color: var(--red); color: #fff; font-weight: 700; }
+.toggle-btn:hover:not(.active) { border-color: var(--muted); color: var(--text2); }
+
+.cat-row { display: flex; align-items: center; gap: 5px; margin-bottom: 5px; }
+.cat-row input.cn { flex: 2; }
+.cat-row input.cv { flex: 1; text-align: center; }
+.cat-row input { background: var(--surf2); border: 1px solid var(--border2); color: var(--text); padding: 5px 8px; font-size: 11px; font-family: inherit; border-radius: 3px; outline: none; }
+.cat-row input:focus { border-color: var(--red); }
+.btn-del { background: none; border: 1px solid var(--border2); color: var(--muted); width: 24px; height: 24px; border-radius: 3px; cursor: pointer; font-size: 14px; line-height: 1; flex-shrink: 0; transition: all .15s; }
+.btn-del:hover { border-color: var(--red); color: var(--red); }
+.btn-add { width: 100%; background: none; border: 1px dashed var(--border2); color: var(--muted); padding: 7px; font-size: 11px; font-family: inherit; border-radius: 3px; cursor: pointer; margin-top: 2px; transition: all .2s; }
+.btn-add:hover { border-color: var(--red); color: var(--red); }
+.btn-dl { width: 100%; background: var(--red); border: none; color: #fff; padding: 10px; font-size: 11px; font-family: inherit; font-weight: 700; border-radius: 3px; cursor: pointer; letter-spacing: 0.06em; text-transform: uppercase; transition: opacity .2s; }
+.btn-dl:hover { opacity: .85; }
+
+#diag-main {
+  flex: 1; overflow: auto;
+  display: flex; justify-content: center; align-items: flex-start;
+  padding: 32px 28px;
+  background: var(--bg);
+}
+
+.chart-card {
+  background: #fff; width: 100%; max-width: 700px;
+  padding: 36px 40px 30px;
+  border: 1px solid #ccc;
+  box-shadow: 0 6px 32px rgba(0,0,0,.55);
+}
+.chart-header { margin-bottom: 22px; border-bottom: 2px solid #111; padding-bottom: 12px; }
+.chart-title { font-family: 'Playfair Display', serif; font-size: 20px; color: #111; line-height: 1.3; margin-bottom: 4px; }
+.chart-subtitle { font-size: 12px; color: #444; }
+.chart-footer { margin-top: 18px; padding-top: 10px; border-top: 1px solid #ddd; font-size: 10px; color: #666; font-style: italic; }
+
+#saulen-chart { display: none; }
+.saulen-plot-wrap { position: relative; }
+.saulen-plot { display: flex; align-items: flex-end; height: 260px; border-bottom: 2px solid #111; border-left: 2px solid #111; position: relative; margin-left: 40px; }
+.saulen-gl { position: absolute; left: 0; right: 0; border-top: 1px solid #e8e8e8; pointer-events: none; }
+.saulen-gl.zero { border-top: 1.5px solid #111; }
+.saulen-group { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; height: 100%; padding: 0 4px; position: relative; z-index: 2; }
+.saulen-rect { width: 100%; max-width: 48px; background: #cc0000; position: relative; }
+.saulen-vl { position: absolute; top: -16px; left: 50%; transform: translateX(-50%); font-size: 10px; font-weight: 600; color: #111; white-space: nowrap; }
+.saulen-xlabels { display: flex; margin-top: 6px; margin-left: 40px; }
+.saulen-xlabel { flex: 1; text-align: center; font-size: 10px; color: #111; font-weight: 600; line-height: 1.3; word-break: break-word; hyphens: auto; }
+.y-axis-labels { position: absolute; left: 0; top: 0; height: 260px; width: 36px; pointer-events: none; }
+.y-lbl { position: absolute; right: 4px; font-size: 9.5px; color: #111; font-weight: 600; text-align: right; transform: translateY(50%); }
+#balken-chart { display: none; } #balken-chart svg { display: block; width: 100%; }
+#linien-chart { display: none; } #linien-chart svg { display: block; width: 100%; }
+#kreis-chart { display: none; }
+#pie-svg { display: block; margin: 0 auto; }
+.pie-legend { display: flex; flex-wrap: wrap; gap: 7px 14px; margin-top: 16px; justify-content: center; }
+.legend-item { display: flex; align-items: center; gap: 5px; font-size: 11px; color: #111; font-weight: 600; }
+.legend-dot { width: 10px; height: 10px; border-radius: 2px; flex-shrink: 0; }
+
+/* ─── SPELL / IMPROVE SHARED ─────────────────────── */
+#page-spell, #page-improve { flex-direction: column; }
+
+.tool-header {
+  height: var(--hdr-h);
+  background: var(--panel);
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center;
+  justify-content: space-between;
+  padding: 0 28px;
+  flex-shrink: 0;
+}
+.hdr-left h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: 18px; color: #ddc8c8; line-height: 1; margin-bottom: 3px;
+}
+.hdr-left p { font-size: 11px; color: var(--muted); }
+.hdr-right { display: flex; gap: 8px; align-items: center; }
+
+.tool-body {
+  flex: 1; display: grid; grid-template-columns: 1fr 1fr; min-height: 0;
+}
+
+.panel-left {
+  display: flex; flex-direction: column;
+  border-right: 1px solid var(--border); overflow: hidden;
+}
+.panel-right {
+  display: flex; flex-direction: column; overflow: hidden;
+}
+
+.panel-bar {
+  height: var(--lbl-h);
+  background: var(--panel);
+  border-bottom: 1px solid var(--border);
+  padding: 0 20px;
+  display: flex; align-items: center; justify-content: space-between;
+  flex-shrink: 0;
+  font-size: 9.5px; font-weight: 700; letter-spacing: 0.13em;
+  text-transform: uppercase; color: var(--muted);
+}
+
+textarea.tarea {
+  flex: 1; width: 100%;
+  background: var(--surface); border: none;
+  color: var(--text);
+  font-family: 'Source Sans 3', sans-serif;
+  font-size: 14px; line-height: 1.75;
+  padding: 22px 24px; resize: none; outline: none; min-height: 0;
+}
+textarea.tarea::placeholder { color: #383838; }
+
+.output-area {
+  flex: 1; overflow-y: auto;
+  padding: 22px 24px;
+  font-size: 14px; line-height: 1.75;
+  color: var(--text); background: var(--surface);
+  white-space: pre-wrap; word-wrap: break-word; min-height: 0;
+}
+
+.result-area {
+  flex: 1; overflow-y: auto;
+  background: var(--surface);
+  display: flex; flex-direction: column; min-height: 0;
+}
+
+.errors-strip {
+  border-top: 1px solid var(--border);
+  flex-shrink: 0; max-height: 160px;
+  overflow-y: auto; background: var(--panel);
+}
+.errors-strip-head {
+  font-size: 9.5px; font-weight: 700; letter-spacing: 0.1em;
+  text-transform: uppercase; color: var(--muted);
+  padding: 9px 20px 7px;
+  border-bottom: 1px solid var(--border);
+}
+
+/* Error type legend bar */
+.err-legend {
+  display: flex; flex-wrap: wrap; gap: 5px 14px;
+  padding: 7px 20px; border-bottom: 1px solid var(--border);
+  background: var(--panel); flex-shrink: 0;
+}
+.err-legend-item { display: flex; align-items: center; gap: 4px; font-size: 9.5px; color: var(--text2); }
+.err-legend-swatch { width: 9px; height: 9px; border-radius: 2px; flex-shrink: 0; }
+
+/* Error highlight spans */
+.se { border-radius: 2px; padding: 0 2px; cursor: help; font-weight: 600; }
+.se-rs { background: #f5c518; color: #000; }
+.se-gr { background: #3b82f6; color: #fff; }
+.se-sz { background: #a855f7; color: #fff; }
+.se-gk { background: #f97316; color: #000; }
+.se-au { background: #06b6d4; color: #000; }
+.se-ss { background: #ec4899; color: #fff; }
+.se-wf { background: #84cc16; color: #000; }
+
+/* Error list items */
+.err-item {
+  display: flex; align-items: flex-start; gap: 10px;
+  padding: 7px 20px; border-bottom: 1px solid #181818; font-size: 11.5px;
+}
+.err-item:last-child { border-bottom: none; }
+.err-word { font-weight: 700; padding: 1px 6px; border-radius: 2px; flex-shrink: 0; font-size: 11px; white-space: nowrap; color: #000; }
+.err-fix { color: var(--text2); }
+.err-fix strong { color: var(--green); }
+
+/* Placeholder */
+.placeholder {
+  flex: 1; display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 10px; color: var(--muted); text-align: center; padding: 40px;
+}
+.placeholder-icon { font-size: 28px; opacity: 0.2; }
+.placeholder p { font-size: 12px; line-height: 1.65; max-width: 280px; }
+
+/* Circle loading animation */
+.loader-wrap {
+  flex: 1; display: flex; flex-direction: column;
+  align-items: center; justify-content: center; gap: 14px;
+  background: var(--surface);
+}
+.loader-svg { transform: rotate(-90deg); }
+.ldr-bg { fill: none; stroke: var(--border2); stroke-width: 5; }
+.ldr-fg {
+  fill: none; stroke: var(--red); stroke-width: 5;
+  stroke-linecap: round;
+  stroke-dasharray: 201.06; stroke-dashoffset: 201.06;
+  transition: stroke-dashoffset .3s ease;
+}
+.ldr-label { font-size: 11.5px; color: var(--muted); letter-spacing: 0.03em; }
+
+/* Improve result */
+.score-box {
+  background: var(--panel); border-bottom: 1px solid var(--border);
+  padding: 18px 22px; display: flex; align-items: center; gap: 18px; flex-shrink: 0;
+}
+.score-ring { position: relative; width: 70px; height: 70px; flex-shrink: 0; }
+.score-ring svg { position: absolute; top: 0; left: 0; transform: rotate(-90deg); }
+.score-overlay {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+}
+.score-num { font-family: 'Playfair Display', serif; font-size: 22px; font-weight: 700; line-height: 1; }
+.score-den { font-size: 9px; color: var(--muted); }
+.score-info h2 { font-size: 14px; font-weight: 700; margin-bottom: 3px; }
+.score-info p { font-size: 12px; color: var(--text2); line-height: 1.5; }
+
+.impr-section { padding: 14px 22px; border-bottom: 1px solid var(--border); }
+.impr-section:last-child { border-bottom: none; }
+.impr-section h3 { font-size: 9.5px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 10px; }
+.h3-pos { color: var(--green); } .h3-neg { color: var(--red); } .h3-sug { color: var(--blue); }
+.fb { display: flex; gap: 9px; margin-bottom: 7px; font-size: 12.5px; line-height: 1.55; color: #c0bcb6; }
+.fb:last-child { margin-bottom: 0; }
+.fb-dot { width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0; margin-top: 7px; }
+.fb-dot.p { background: var(--green); } .fb-dot.n { background: var(--red); } .fb-dot.s { background: var(--blue); }
 
 /* Buttons */
-.btn-primary { background:var(--red); border:none; color:#fff; padding:8px 18px; font-size:11px; font-family:inherit; font-weight:700; border-radius:2px; cursor:pointer; letter-spacing:0.07em; text-transform:uppercase; transition:opacity .2s; white-space:nowrap; display:inline-flex; align-items:center; gap:7px; }
-.btn-primary:hover { opacity:.82; }
-.btn-primary:disabled { opacity:.4; cursor:default; }
-.btn-secondary { background:var(--surface2); border:1px solid var(--border2); color:var(--text2); padding:7px 14px; font-size:11px; font-family:inherit; font-weight:600; border-radius:2px; cursor:pointer; transition:all .15s; white-space:nowrap; }
-.btn-secondary:hover { border-color:var(--muted); color:var(--text); }
-.mini-spin { width:12px; height:12px; border:2px solid rgba(255,255,255,.3); border-top-color:#fff; border-radius:50%; animation:spin .6s linear infinite; }
-@keyframes spin { to { transform:rotate(360deg); } }
+.btn-p {
+  background: var(--red); border: none; color: #fff;
+  padding: 8px 18px; font-size: 11px; font-family: inherit; font-weight: 700;
+  border-radius: 3px; cursor: pointer; letter-spacing: 0.07em; text-transform: uppercase;
+  transition: opacity .2s; white-space: nowrap;
+  display: inline-flex; align-items: center; gap: 7px;
+}
+.btn-p:hover { opacity: .83; }
+.btn-p:disabled { opacity: .4; cursor: default; }
+.btn-s {
+  background: var(--surf2); border: 1px solid var(--border2); color: var(--text2);
+  padding: 7px 14px; font-size: 11px; font-family: inherit; font-weight: 600;
+  border-radius: 3px; cursor: pointer; transition: all .15s; white-space: nowrap;
+}
+.btn-s:hover { border-color: var(--muted); color: var(--text); }
+.mini-spin {
+  width: 12px; height: 12px;
+  border: 2px solid rgba(255,255,255,.25); border-top-color: #fff;
+  border-radius: 50%; animation: spin .6s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
 
-/* DIAGRAM */
-#page-diagram { flex-direction:row; }
-#diagram-sidebar { width:320px; min-width:320px; background:var(--dark); border-right:1px solid var(--border); display:flex; flex-direction:column; overflow:hidden; flex-shrink:0; }
-.diagram-sidebar-header { height:var(--tool-h); border-bottom:1px solid var(--border); padding:0 18px; display:flex; align-items:center; flex-shrink:0; }
-.diagram-sidebar-header h1 { font-family:'Playfair Display',serif; font-size:18px; color:#ddc8c8; }
-.diagram-sidebar-body { flex:1; overflow-y:auto; padding:16px 16px; display:flex; flex-direction:column; gap:14px; }
-.section-label { font-size:9px; letter-spacing:0.12em; text-transform:uppercase; color:var(--muted); margin-bottom:5px; }
-.diagram-sidebar-body input[type="text"], .diagram-sidebar-body input[type="number"] { width:100%; background:var(--surface2); border:1px solid var(--border2); color:var(--text); padding:6px 10px; font-size:12px; font-family:inherit; border-radius:2px; margin-bottom:5px; outline:none; transition:border-color .15s; }
-.diagram-sidebar-body input:focus { border-color:var(--red); }
-.toggle-row { display:flex; flex-wrap:wrap; gap:4px; }
-.toggle-btn { flex:1 1 calc(50% - 3px); padding:7px 4px; font-size:11px; font-family:inherit; background:var(--surface2); border:1px solid var(--border2); color:var(--muted); border-radius:2px; cursor:pointer; transition:all .15s; white-space:nowrap; }
-.toggle-btn.active { background:var(--red); border-color:var(--red); color:#fff; font-weight:700; }
-.toggle-btn:hover:not(.active) { border-color:var(--muted); color:var(--text2); }
-.cat-row { display:flex; align-items:center; gap:5px; margin-bottom:5px; }
-.cat-row input.cat-name { flex:2; background:var(--surface2); border:1px solid var(--border2); color:var(--text); padding:5px 8px; font-size:11px; font-family:inherit; border-radius:2px; outline:none; }
-.cat-row input.cat-val { flex:1; background:var(--surface2); border:1px solid var(--border2); color:var(--text); padding:5px 7px; font-size:11px; font-family:inherit; border-radius:2px; text-align:center; outline:none; }
-.cat-row input:focus { border-color:var(--red); }
-.btn-del { background:none; border:1px solid var(--border2); color:var(--muted); width:22px; height:22px; border-radius:2px; cursor:pointer; font-size:13px; line-height:1; flex-shrink:0; transition:all .15s; }
-.btn-del:hover { border-color:var(--red); color:var(--red); }
-.btn-add { width:100%; background:none; border:1px dashed var(--border2); color:var(--muted); padding:6px; font-size:11px; font-family:inherit; border-radius:2px; cursor:pointer; margin-top:2px; transition:all .2s; }
-.btn-add:hover { border-color:var(--red); color:var(--red); }
-.btn-download { width:100%; background:var(--red); border:none; color:#fff; padding:9px; font-size:11px; font-family:inherit; font-weight:700; border-radius:2px; cursor:pointer; letter-spacing:0.06em; text-transform:uppercase; transition:opacity .2s; }
-.btn-download:hover { opacity:.82; }
-#diagram-main { flex:1; display:flex; flex-direction:column; background:var(--bg); overflow:hidden; }
-.diagram-main-header { height:var(--tool-h); border-bottom:1px solid var(--border); background:var(--dark); padding:0 24px; display:flex; align-items:center; flex-shrink:0; }
-.diagram-main-header .panel-label { height:auto; background:none; border:none; padding:0; width:100%; }
-.diagram-canvas-wrap { flex:1; display:flex; align-items:flex-start; justify-content:center; padding:28px 24px; overflow:auto; }
-.chart-card { background:#fff; width:100%; max-width:680px; padding:30px 36px 26px; border:1px solid var(--border2); box-shadow:0 4px 24px rgba(0,0,0,.6); }
-.chart-header { margin-bottom:20px; border-bottom:2px solid #000; padding-bottom:10px; }
-.chart-title { font-family:'Playfair Display',serif; font-size:18px; color:#000; line-height:1.3; margin-bottom:3px; }
-.chart-subtitle { font-size:11.5px; color:#555; }
-.chart-footer { margin-top:16px; padding-top:9px; border-top:1px solid #ddd; font-size:10px; color:#666; font-style:italic; }
-#saulen-chart { display:none; }
-.saulen-plot-wrap { position:relative; }
-.saulen-plot { display:flex; align-items:flex-end; height:240px; border-bottom:2px solid #000; border-left:2px solid #000; position:relative; margin-left:40px; }
-.saulen-gl { position:absolute; left:0; right:0; border-top:1px solid #ebebeb; pointer-events:none; }
-.saulen-gl.zero { border-top:1.5px solid #000; }
-.saulen-group { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:flex-end; height:100%; padding:0 4px; position:relative; z-index:2; }
-.saulen-rect { width:100%; max-width:46px; background:#cc0000; position:relative; }
-.saulen-vl { position:absolute; top:-15px; left:50%; transform:translateX(-50%); font-size:9.5px; font-weight:600; color:#000; white-space:nowrap; }
-.saulen-xlabels { display:flex; margin-top:5px; margin-left:40px; }
-.saulen-xlabel { flex:1; text-align:center; font-size:9.5px; color:#000; font-weight:600; line-height:1.3; padding:0 1px; word-break:break-word; hyphens:auto; }
-.y-axis-labels { position:absolute; left:0; top:0; height:240px; width:36px; pointer-events:none; }
-.y-lbl { position:absolute; right:4px; font-size:9px; color:#000; font-weight:600; text-align:right; transform:translateY(50%); }
-#balken-chart { display:none; } #balken-chart svg { display:block; width:100%; }
-#linien-chart { display:none; } #linien-chart svg { display:block; width:100%; }
-#kreis-chart { display:none; }
-#pie-svg { display:block; margin:0 auto; }
-.pie-legend { display:flex; flex-wrap:wrap; gap:6px 12px; margin-top:14px; justify-content:center; }
-.legend-item { display:flex; align-items:center; gap:5px; font-size:10.5px; color:#000; font-weight:600; }
-.legend-dot { width:10px; height:10px; border-radius:2px; flex-shrink:0; }
+/* ─── STATUS BAR (bottom) ─────────────────────────── */
+#statusbar {
+  position: fixed; bottom: 0; left: 0; right: 0;
+  height: 26px; background: var(--dark);
+  border-top: 1px solid var(--border);
+  display: flex; align-items: center; padding: 0 18px;
+  font-size: 10px; color: var(--muted); letter-spacing: 0.04em;
+  z-index: 100;
+}
+#statusbar span + span { margin-left: 20px; }
+#statusbar span { display: flex; align-items: center; gap: 5px; }
+.status-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--green); }
+.status-dot.red { background: var(--red); }
 
-::-webkit-scrollbar { width:4px; height:4px; }
-::-webkit-scrollbar-track { background:transparent; }
-::-webkit-scrollbar-thumb { background:#2a2a2a; border-radius:2px; }
-::-webkit-scrollbar-thumb:hover { background:#444; }
-
-/* API KEY MODAL */
-#apikey-overlay { position:fixed; inset:0; background:rgba(0,0,0,.88); backdrop-filter:blur(6px); z-index:9999; display:flex; align-items:center; justify-content:center; }
-#apikey-modal { background:var(--dark); border:1px solid var(--border2); border-top:3px solid var(--red); padding:32px 36px; max-width:420px; width:90%; box-shadow:0 12px 50px rgba(0,0,0,.7); }
-#apikey-modal h2 { font-family:'Playfair Display',serif; font-size:20px; color:#ddc8c8; margin-bottom:8px; }
-#apikey-modal p { font-size:12px; color:var(--muted); line-height:1.65; margin-bottom:20px; }
-#apikey-modal a { color:var(--text2); }
-#apikey-input { width:100%; background:var(--surface2); border:1px solid var(--border2); color:var(--text); font-family:monospace; font-size:13px; padding:10px 13px; border-radius:2px; outline:none; margin-bottom:6px; transition:border-color .15s; }
-#apikey-input:focus { border-color:var(--red); }
-#apikey-error { font-size:11px; color:var(--red); margin-bottom:10px; min-height:15px; }
-#apikey-submit { width:100%; background:var(--red); border:none; color:#fff; padding:10px; font-family:inherit; font-size:12px; font-weight:700; letter-spacing:0.07em; text-transform:uppercase; border-radius:2px; cursor:pointer; transition:opacity .2s; }
-#apikey-submit:hover { opacity:.85; }
-.apikey-hint { font-size:11px; color:#333; margin-top:12px; text-align:center; }
+/* adjust pages for status bar */
+.page { bottom: 26px; }
 </style>
 </head>
 <body>
 
-<div id="apikey-overlay">
-  <div id="apikey-modal">
-    <h2>API-Schlüssel erforderlich</h2>
-    <p>Dieses Portal nutzt die Anthropic Claude API. Geben Sie Ihren API-Schlüssel ein — er wird nur in dieser Browser-Sitzung gespeichert.<br><br>
-    Schlüssel erhalten: <a href="https://console.anthropic.com" target="_blank">console.anthropic.com</a></p>
-    <input type="password" id="apikey-input" placeholder="sk-ant-…" autocomplete="off"/>
-    <div id="apikey-error"></div>
-    <button id="apikey-submit" onclick="submitApiKey()">Bestätigen &amp; starten</button>
-    <div class="apikey-hint">🔒 Ihr Schlüssel verlässt diesen Browser nicht</div>
-  </div>
-</div>
-
+<!-- TOP NAV -->
 <nav id="topnav">
-  <div class="nav-brand">Presse<span>Portal</span></div>
+  <div class="nav-brand">Presse<em>Portal</em></div>
   <div class="nav-tabs">
-    <button class="nav-tab" id="tab-diagram" onclick="showPage('diagram')">📊 Diagramm-Editor</button>
-    <button class="nav-tab active" id="tab-spell" onclick="showPage('spell')">🔍 Rechtschreibprüfung</button>
-    <button class="nav-tab" id="tab-improve" onclick="showPage('improve')">✨ Verbesserungsvorschläge</button>
+    <button class="nav-tab" id="tab-diagram" onclick="showPage('diagram')">
+      <span class="tab-dot"></span>Diagramm-Editor
+    </button>
+    <button class="nav-tab active" id="tab-spell" onclick="showPage('spell')">
+      <span class="tab-dot"></span>Rechtschreibprüfung
+    </button>
+    <button class="nav-tab" id="tab-improve" onclick="showPage('improve')">
+      <span class="tab-dot"></span>Verbesserungsvorschläge
+    </button>
   </div>
 </nav>
 
-<!-- DIAGRAM -->
+<!-- ══════════════════════════════════════════════════
+     PAGE: DIAGRAM EDITOR
+══════════════════════════════════════════════════════ -->
 <div class="page" id="page-diagram">
-  <div id="diagram-sidebar">
-    <div class="diagram-sidebar-header"><h1>Diagramm-Editor</h1></div>
-    <div class="diagram-sidebar-body">
+
+  <div id="diag-sidebar">
+    <div class="sidebar-head"><h1>Diagramm-Editor</h1></div>
+    <div class="sidebar-body">
+
       <div>
-        <div class="section-label">Diagrammtyp</div>
+        <div class="sec-label">Diagrammtyp</div>
         <div class="toggle-row">
           <button class="toggle-btn active" id="btn-saulen" onclick="setType('saulen')">Säulen</button>
-          <button class="toggle-btn" id="btn-balken" onclick="setType('balken')">Balken</button>
-          <button class="toggle-btn" id="btn-linien" onclick="setType('linien')">Linie</button>
-          <button class="toggle-btn" id="btn-kreis" onclick="setType('kreis')">Kreis</button>
+          <button class="toggle-btn"        id="btn-balken" onclick="setType('balken')">Balken</button>
+          <button class="toggle-btn"        id="btn-linien" onclick="setType('linien')">Linie</button>
+          <button class="toggle-btn"        id="btn-kreis"  onclick="setType('kreis')">Kreis</button>
         </div>
       </div>
-      <div><div class="section-label">Titel</div><input type="text" id="inp-title" value="Monatliche Umsätze 2024" oninput="render()"></div>
-      <div><div class="section-label">Untertitel</div><input type="text" id="inp-subtitle" value="Übersicht aller Geschäftsbereiche · Beispieldaten" oninput="render()"></div>
-      <div><div class="section-label">Fußnote</div><input type="text" id="inp-footer" value="Angaben in absoluten Zahlen · Quelle: Musterverlag" oninput="render()"></div>
+
       <div>
-        <div class="section-label">Kategorien (Name | Wert)</div>
+        <div class="sec-label">Titel</div>
+        <input type="text" id="inp-title" value="Monatliche Umsätze 2024" oninput="render()">
+      </div>
+      <div>
+        <div class="sec-label">Untertitel</div>
+        <input type="text" id="inp-subtitle" value="Übersicht aller Geschäftsbereiche · Beispieldaten" oninput="render()">
+      </div>
+      <div>
+        <div class="sec-label">Fußnote</div>
+        <input type="text" id="inp-footer" value="Angaben in absoluten Zahlen · Quelle: Musterverlag" oninput="render()">
+      </div>
+
+      <div>
+        <div class="sec-label">Kategorien (Name | Wert)</div>
         <div id="cat-list"></div>
         <button class="btn-add" onclick="addCat()">+ Hinzufügen</button>
       </div>
-      <button class="btn-download" onclick="downloadPNG()">⬇ Als PNG herunterladen</button>
+
+      <button class="btn-dl" onclick="downloadPNG()">⬇ Als PNG herunterladen</button>
     </div>
   </div>
-  <div id="diagram-main">
-    <div class="diagram-main-header">
-      <div class="panel-label">
-        <span>Vorschau</span>
-        <span id="diagram-type-label" style="color:var(--text2);font-size:10px;letter-spacing:0;text-transform:none;font-weight:400">Säulendiagramm</span>
+
+  <div id="diag-main">
+    <div class="chart-card" id="chart-card">
+      <div class="chart-header">
+        <div class="chart-title"    id="out-title"></div>
+        <div class="chart-subtitle" id="out-subtitle"></div>
       </div>
-    </div>
-    <div class="diagram-canvas-wrap">
-      <div class="chart-card" id="chart-card">
-        <div class="chart-header"><div class="chart-title" id="out-title"></div><div class="chart-subtitle" id="out-subtitle"></div></div>
-        <div id="saulen-chart"><div class="saulen-plot-wrap"><div class="y-axis-labels" id="saulen-ylabels"></div><div class="saulen-plot" id="saulen-plot"></div></div><div class="saulen-xlabels" id="saulen-xlabels"></div></div>
-        <div id="balken-chart"><svg id="balken-svg" viewBox="0 0 600 300" preserveAspectRatio="xMidYMid meet" style="width:100%;display:block;"></svg></div>
-        <div id="linien-chart"><svg id="linien-svg" viewBox="0 0 600 260" preserveAspectRatio="xMidYMid meet"></svg></div>
-        <div id="kreis-chart"><svg id="pie-svg" viewBox="0 0 380 280" preserveAspectRatio="xMidYMid meet" width="380" height="280"></svg><div class="pie-legend" id="pie-legend"></div></div>
-        <div class="chart-footer" id="out-footer"></div>
+
+      <div id="saulen-chart">
+        <div class="saulen-plot-wrap">
+          <div class="y-axis-labels" id="saulen-ylabels"></div>
+          <div class="saulen-plot"   id="saulen-plot"></div>
+        </div>
+        <div class="saulen-xlabels" id="saulen-xlabels"></div>
       </div>
+
+      <div id="balken-chart">
+        <svg id="balken-svg" viewBox="0 0 600 300" preserveAspectRatio="xMidYMid meet" style="width:100%;display:block;"></svg>
+      </div>
+
+      <div id="linien-chart">
+        <svg id="linien-svg" viewBox="0 0 600 260" preserveAspectRatio="xMidYMid meet"></svg>
+      </div>
+
+      <div id="kreis-chart">
+        <svg id="pie-svg" viewBox="0 0 380 280" preserveAspectRatio="xMidYMid meet" width="380" height="280"></svg>
+        <div class="pie-legend" id="pie-legend"></div>
+      </div>
+
+      <div class="chart-footer" id="out-footer"></div>
     </div>
   </div>
 </div>
 
-<!-- SPELL CHECK -->
+<!-- ══════════════════════════════════════════════════
+     PAGE: SPELL CHECK
+══════════════════════════════════════════════════════ -->
 <div class="page active" id="page-spell">
+
   <div class="tool-header">
-    <div>
+    <div class="hdr-left">
       <h1>Rechtschreibung &amp; Grammatik</h1>
-      <p>Prüft Rechtschreibung, Grammatik, Großschreibung, Satzstellung, Ausdruck, Wortfehler &amp; Satzzeichen — farbig nach Typ markiert</p>
+      <p>Prüft Rechtschreibung · Grammatik · Großschreibung · Satzstellung · Ausdruck · Wortfehler · Satzzeichen</p>
     </div>
-    <div class="tool-actions">
-      <button class="btn-secondary" onclick="clearSpell()">Leeren</button>
-      <button class="btn-primary" id="spell-btn" onclick="runSpellCheck()">Text prüfen</button>
+    <div class="hdr-right">
+      <button class="btn-s" onclick="clearSpell()">Leeren</button>
+      <button class="btn-p" id="spell-btn" onclick="runSpell()">Text prüfen</button>
     </div>
   </div>
+
   <div class="tool-body">
-    <div class="tool-panel-left">
-      <div class="panel-label">
+    <div class="panel-left">
+      <div class="panel-bar">
         <span>Ihr Text</span>
-        <span id="spell-char-count" style="color:var(--muted);font-size:9.5px;letter-spacing:0;text-transform:none;font-weight:400">0 Zeichen</span>
+        <span id="spell-cc" style="text-transform:none;letter-spacing:0;font-weight:400;color:var(--muted)">0 Zeichen</span>
       </div>
-      <textarea class="tool-textarea" id="spell-input"
-        placeholder="Geben Sie hier Ihre Pressemitteilung oder Discord-Ankündigung ein…"
-        oninput="document.getElementById('spell-char-count').textContent=this.value.length+' Zeichen'"></textarea>
+      <textarea class="tarea" id="spell-input"
+        placeholder="Pressemitteilung oder Discord-Ankündigung hier eingeben…"
+        oninput="document.getElementById('spell-cc').textContent=this.value.length+' Zeichen'"></textarea>
     </div>
-    <div class="tool-panel-right">
-      <div class="panel-label">
+
+    <div class="panel-right">
+      <div class="panel-bar">
         <span>Prüfungsergebnis</span>
-        <span id="spell-error-badge" style="display:none;font-size:9.5px;letter-spacing:0;text-transform:none;font-weight:700;"></span>
+        <span id="spell-badge" style="display:none;text-transform:none;letter-spacing:0;font-size:9.5px;"></span>
       </div>
-      <div id="spell-legend-bar" class="spell-legend" style="display:none"></div>
-      <div class="tool-output" id="spell-output">
-        <div class="tool-placeholder">
-          <div class="icon">🔍</div>
-          <p>Text eingeben und auf „Text prüfen" klicken.<br>Fehler werden farbig nach Typ markiert.</p>
+      <div id="spell-legend" class="err-legend" style="display:none"></div>
+      <div class="output-area" id="spell-out">
+        <div class="placeholder">
+          <div class="placeholder-icon">🔍</div>
+          <p>Text eingeben und auf „Text prüfen" klicken. Fehler werden farbig nach Typ markiert.</p>
         </div>
       </div>
-      <div class="tool-details" id="spell-errors-list" style="display:none">
-        <h3>Gefundene Fehler</h3>
-        <div id="spell-errors-items"></div>
+      <div id="spell-errlist" class="errors-strip" style="display:none">
+        <div class="errors-strip-head">Gefundene Fehler</div>
+        <div id="spell-erritems"></div>
       </div>
     </div>
   </div>
 </div>
 
-<!-- IMPROVE -->
+<!-- ══════════════════════════════════════════════════
+     PAGE: IMPROVE
+══════════════════════════════════════════════════════ -->
 <div class="page" id="page-improve">
+
   <div class="tool-header">
-    <div>
+    <div class="hdr-left">
       <h1>Verbesserungsvorschläge</h1>
-      <p>KI bewertet Ihren Text und gibt detailliertes Feedback (Skala 1–10)</p>
+      <p>KI bewertet Professionalität, Klarheit, Struktur und Wirkung Ihres Textes</p>
     </div>
-    <div class="tool-actions">
-      <button class="btn-secondary" onclick="clearImprove()">Leeren</button>
-      <button class="btn-primary" id="improve-btn" onclick="runImprove()">Text bewerten</button>
+    <div class="hdr-right">
+      <button class="btn-s" onclick="clearImprove()">Leeren</button>
+      <button class="btn-p" id="improve-btn" onclick="runImprove()">Text bewerten</button>
     </div>
   </div>
+
   <div class="tool-body">
-    <div class="tool-panel-left">
-      <div class="panel-label">
+    <div class="panel-left">
+      <div class="panel-bar">
         <span>Ihr Text</span>
-        <span id="improve-char-count" style="color:var(--muted);font-size:9.5px;letter-spacing:0;text-transform:none;font-weight:400">0 Zeichen</span>
+        <span id="improve-cc" style="text-transform:none;letter-spacing:0;font-weight:400;color:var(--muted)">0 Zeichen</span>
       </div>
-      <textarea class="tool-textarea" id="improve-input"
-        placeholder="Geben Sie hier Ihre fertige Pressemitteilung oder Discord-Ankündigung ein…"
-        oninput="document.getElementById('improve-char-count').textContent=this.value.length+' Zeichen'"></textarea>
+      <textarea class="tarea" id="improve-input"
+        placeholder="Pressemitteilung oder Discord-Ankündigung hier eingeben…"
+        oninput="document.getElementById('improve-cc').textContent=this.value.length+' Zeichen'"></textarea>
     </div>
-    <div class="tool-panel-right">
-      <div class="panel-label">
+
+    <div class="panel-right">
+      <div class="panel-bar">
         <span>KI-Bewertung</span>
-        <span id="improve-score-badge" style="display:none;font-weight:700;font-size:10px;letter-spacing:0;text-transform:none;"></span>
+        <span id="improve-badge" style="display:none;text-transform:none;letter-spacing:0;font-weight:700;font-size:10px;"></span>
       </div>
-      <div class="tool-result" id="improve-result">
-        <div class="tool-placeholder" style="flex:1">
-          <div class="icon">✨</div>
+      <div class="result-area" id="improve-result">
+        <div class="placeholder" style="flex:1">
+          <div class="placeholder-icon">✨</div>
           <p>Text eingeben und auf „Text bewerten" klicken.</p>
         </div>
       </div>
@@ -322,406 +584,419 @@ body { font-family:'Source Sans 3',sans-serif; background:var(--bg); color:var(-
   </div>
 </div>
 
+<!-- STATUS BAR -->
+<div id="statusbar">
+  <span><span class="status-dot" id="api-dot"></span><span id="api-status">API bereit</span></span>
+</div>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script>
-// ================================================================
-// API KEY
-// ================================================================
-let _apiKey = '';
-function submitApiKey() {
-  const val = document.getElementById('apikey-input').value.trim();
-  const err = document.getElementById('apikey-error');
-  if (!val.startsWith('sk-ant-') || val.length < 20) { err.textContent = 'Ungültiger Schlüssel — er sollte mit „sk-ant-" beginnen.'; return; }
-  _apiKey = val; sessionStorage.setItem('pp_apikey_session', val);
-  document.getElementById('apikey-overlay').style.display = 'none';
-}
-function getApiKey() {
-  if (!_apiKey) { document.getElementById('apikey-overlay').style.display = 'flex'; return null; }
-  return _apiKey;
-}
-document.addEventListener('DOMContentLoaded', () => {
-  document.getElementById('apikey-input').addEventListener('keydown', e => { if (e.key==='Enter') submitApiKey(); });
-  // Always ask for API key on page load — do not auto-hide
-});
+'use strict';
 
+// ════════════════════════════════════════════════════
+// API — calls our own /api/chat proxy (no key in browser)
+// ════════════════════════════════════════════════════
+async function apiCall(system, userText, maxTokens = 1200) {
+  setStatus('loading');
+  try {
+    const resp = await fetch('/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: maxTokens,
+        system,
+        messages: [{ role: 'user', content: userText }]
+      })
+    });
+    const data = await resp.json();
+    if (!resp.ok || !data.content) {
+      throw new Error(data?.error?.message || ('Server-Fehler ' + resp.status));
+    }
+    setStatus('ok');
+    return data.content.map(i => i.text || '').join('');
+  } catch(e) {
+    setStatus('error');
+    throw e;
+  }
+}
+
+function setStatus(state) {
+  const dot = document.getElementById('api-dot');
+  const txt = document.getElementById('api-status');
+  if (state === 'loading') { dot.className = 'status-dot'; txt.textContent = 'API anfrage…'; }
+  else if (state === 'ok')  { dot.className = 'status-dot'; txt.textContent = 'API bereit'; }
+  else { dot.className = 'status-dot red'; txt.textContent = 'API-Fehler'; }
+}
+
+// ════════════════════════════════════════════════════
+// NAV
+// ════════════════════════════════════════════════════
 function showPage(p) {
-  document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));
-  document.querySelectorAll('.nav-tab').forEach(x=>x.classList.remove('active'));
-  document.getElementById('page-'+p).classList.add('active');
-  document.getElementById('tab-'+p).classList.add('active');
+  document.querySelectorAll('.page').forEach(x => x.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(x => x.classList.remove('active'));
+  document.getElementById('page-' + p).classList.add('active');
+  document.getElementById('tab-' + p).classList.add('active');
 }
 
-// ================================================================
-// DIAGRAM
-// ================================================================
-const PIE_COLORS=['#cc0000','#e63333','#b30000','#ff4444','#992200','#ff6666','#771100','#ffaaaa','#dd1100','#ff8888'];
-const TYPE_LABELS={saulen:'Säulendiagramm',balken:'Balkendiagramm',linien:'Liniendiagramm',kreis:'Kreisdiagramm'};
-let chartType='saulen';
-let categories=[{name:'Januar',val:42},{name:'Februar',val:35},{name:'März',val:58},{name:'April',val:47},{name:'Mai',val:63},{name:'Juni',val:55}];
+// ════════════════════════════════════════════════════
+// DIAGRAM EDITOR
+// ════════════════════════════════════════════════════
+const PIE_COLORS = ['#cc0000','#e63333','#b30000','#ff4444','#992200','#ff6666','#771100','#ffaaaa','#dd1100','#ff9999'];
+const TYPE_LABELS = { saulen:'Säulendiagramm', balken:'Balkendiagramm', linien:'Liniendiagramm', kreis:'Kreisdiagramm' };
+let chartType = 'saulen';
+let categories = [
+  {name:'Januar',val:42},{name:'Februar',val:35},{name:'März',val:58},
+  {name:'April',val:47},{name:'Mai',val:63},{name:'Juni',val:55}
+];
 
-function buildSidebar(){
-  const list=document.getElementById('cat-list');list.innerHTML='';
-  categories.forEach((c,i)=>{
-    const row=document.createElement('div');row.className='cat-row';
-    row.innerHTML=`<input class="cat-name" type="text" value="${c.name}" oninput="updCat(${i},'name',this.value)"><input class="cat-val" type="number" value="${c.val}" oninput="updCat(${i},'val',+this.value)" min="0"><button class="btn-del" onclick="delCat(${i})">×</button>`;
+function buildSidebar() {
+  const list = document.getElementById('cat-list'); list.innerHTML = '';
+  categories.forEach((c,i) => {
+    const row = document.createElement('div'); row.className = 'cat-row';
+    row.innerHTML = `<input class="cn" type="text" value="${c.name}" oninput="updCat(${i},'name',this.value)">
+      <input class="cv" type="number" value="${c.val}" oninput="updCat(${i},'val',+this.value)" min="0">
+      <button class="btn-del" onclick="delCat(${i})">×</button>`;
     list.appendChild(row);
   });
 }
 function updCat(i,k,v){categories[i][k]=v;render();}
 function delCat(i){categories.splice(i,1);buildSidebar();render();}
 function addCat(){categories.push({name:'Neu',val:10});buildSidebar();render();}
-function setType(t){
-  chartType=t;
-  ['saulen','balken','linien','kreis'].forEach(x=>{
-    document.getElementById('btn-'+x).classList.toggle('active',x===t);
-    document.getElementById(x+'-chart').style.display=x===t?'block':'none';
+
+function setType(t) {
+  chartType = t;
+  ['saulen','balken','linien','kreis'].forEach(x => {
+    document.getElementById('btn-'+x).classList.toggle('active', x===t);
+    document.getElementById(x+'-chart').style.display = x===t ? 'block' : 'none';
   });
-  document.getElementById('diagram-type-label').textContent=TYPE_LABELS[t]||'';
   render();
 }
-function niceScale(m){const s=[1,2,5,10,20,25,50,100,200,500,1000];let st=s.find(x=>Math.ceil(m/x)<=5)||s[s.length-1];const sc=Math.ceil(m/st)*st;return{scaleMax:sc,step:st,tickCount:sc/st};}
-function render(){
-  document.getElementById('out-title').textContent=document.getElementById('inp-title').value;
-  document.getElementById('out-subtitle').textContent=document.getElementById('inp-subtitle').value;
-  document.getElementById('out-footer').textContent=document.getElementById('inp-footer').value;
-  const sorted=[...categories].sort((a,b)=>b.val-a.val),ordered=[...categories];
-  const maxVal=Math.max(...categories.map(c=>c.val),1);
-  const{scaleMax,step,tickCount}=niceScale(maxVal);
-  if(chartType==='saulen')renderSaulen(sorted,scaleMax,step,tickCount);
-  if(chartType==='balken')renderBalken(sorted,scaleMax);
-  if(chartType==='linien')renderLinien(ordered,scaleMax,step,tickCount);
-  if(chartType==='kreis')renderKreis(sorted);
+
+function niceScale(m) {
+  const s=[1,2,5,10,20,25,50,100,200,500,1000];
+  const step = s.find(x => Math.ceil(m/x) <= 5) || s[s.length-1];
+  const sc = Math.ceil(m/step)*step;
+  return { scaleMax:sc, step, tickCount:sc/step };
 }
-function renderSaulen(s,sm,step,tc){
+
+function render() {
+  document.getElementById('out-title').textContent    = document.getElementById('inp-title').value;
+  document.getElementById('out-subtitle').textContent = document.getElementById('inp-subtitle').value;
+  document.getElementById('out-footer').textContent   = document.getElementById('inp-footer').value;
+  const sorted  = [...categories].sort((a,b)=>b.val-a.val);
+  const ordered = [...categories];
+  const maxVal  = Math.max(...categories.map(c=>c.val),1);
+  const {scaleMax,step,tickCount} = niceScale(maxVal);
+  if (chartType==='saulen') renderSaulen(sorted,scaleMax,step,tickCount);
+  if (chartType==='balken') renderBalken(sorted,scaleMax);
+  if (chartType==='linien') renderLinien(ordered,scaleMax,step,tickCount);
+  if (chartType==='kreis')  renderKreis(sorted);
+}
+
+function renderSaulen(s,sm,step,tc) {
   const plot=document.getElementById('saulen-plot'),xl=document.getElementById('saulen-xlabels'),yl=document.getElementById('saulen-ylabels');
-  let gl='';for(let t=0;t<=tc;t++){const p=(t/tc)*100;gl+=`<div class="saulen-gl${t===0?' zero':''}" style="bottom:${p}%;"></div>`;}
+  let gl='';for(let t=0;t<=tc;t++){const p=(t/tc)*100;gl+=`<div class="saulen-gl${t===0?' zero':''}" style="bottom:${p}%"></div>`;}
   let bars='';s.forEach(c=>{const p=(c.val/sm)*100;bars+=`<div class="saulen-group"><div class="saulen-rect" style="height:${p}%"><span class="saulen-vl">${c.val}</span></div></div>`;});
   plot.innerHTML=gl+bars;
   xl.innerHTML=s.map(c=>`<div class="saulen-xlabel">${c.name}</div>`).join('');
   let y='';for(let t=0;t<=tc;t++){const p=(t/tc)*100;y+=`<span class="y-lbl" style="bottom:${p}%">${t*step}</span>`;}
   yl.innerHTML=y;
 }
-function renderBalken(s,sm){
+
+function renderBalken(s,sm) {
   const svg=document.getElementById('balken-svg'),{step,tickCount:tc}=niceScale(sm),n=s.length,W=600,H=Math.max(n*36+60,200);
   svg.setAttribute('viewBox',`0 0 ${W} ${H}`);
-  const P={t:10,r:30,b:30,l:90},pw=W-P.l-P.r,ph=H-P.t-P.b,th=ph/n,bh=Math.min(th*0.55,28);
-  const xp=v=>P.l+(v/sm)*pw,ym=i=>P.t+i*th+th/2;
+  const P={t:10,r:30,b:30,l:90},pw=W-P.l-P.r,ph=H-P.t-P.b,th=ph/n,bh=Math.min(th*.55,28);
+  const xp=v=>P.l+(v/sm)*pw, ym=i=>P.t+i*th+th/2;
   let o='';
-  for(let t=0;t<=tc;t++){const x=xp(t*step),z=t===0;o+=`<line x1="${x}" y1="${P.t}" x2="${x}" y2="${P.t+ph}" stroke="${z?'#000':'#e8e8e8'}" stroke-width="${z?1.5:1}"/>`;o+=`<text x="${x}" y="${P.t+ph+14}" text-anchor="middle" font-size="9.5" font-weight="600" fill="#000" font-family="'Source Sans 3',sans-serif">${t*step}</text>`;}
-  o+=`<line x1="${P.l}" y1="${P.t}" x2="${P.l}" y2="${P.t+ph}" stroke="#000" stroke-width="2"/>`;
-  o+=`<line x1="${P.l}" y1="${P.t+ph}" x2="${P.l+pw}" y2="${P.t+ph}" stroke="#000" stroke-width="2"/>`;
-  s.forEach((c,i)=>{const bw=(c.val/sm)*pw,x0=P.l,y0=ym(i)-bh/2;o+=`<rect x="${x0}" y="${y0}" width="${bw}" height="${bh}" fill="#cc0000"/>`;o+=`<text x="${x0+bw+6}" y="${ym(i)}" dominant-baseline="middle" font-size="10" font-weight="600" fill="#000" font-family="'Source Sans 3',sans-serif">${c.val}</text>`;o+=`<text x="${P.l-6}" y="${ym(i)}" text-anchor="end" dominant-baseline="middle" font-size="10" font-weight="600" fill="#000" font-family="'Source Sans 3',sans-serif">${c.name}</text>`;});
+  for(let t=0;t<=tc;t++){const x=xp(t*step),z=t===0;o+=`<line x1="${x}" y1="${P.t}" x2="${x}" y2="${P.t+ph}" stroke="${z?'#111':'#e8e8e8'}" stroke-width="${z?1.5:1}"/>`;o+=`<text x="${x}" y="${P.t+ph+14}" text-anchor="middle" font-size="9.5" font-weight="600" fill="#111" font-family="'Source Sans 3',sans-serif">${t*step}</text>`;}
+  o+=`<line x1="${P.l}" y1="${P.t}" x2="${P.l}" y2="${P.t+ph}" stroke="#111" stroke-width="2"/>`;
+  o+=`<line x1="${P.l}" y1="${P.t+ph}" x2="${P.l+pw}" y2="${P.t+ph}" stroke="#111" stroke-width="2"/>`;
+  s.forEach((c,i)=>{const bw=(c.val/sm)*pw,x0=P.l,y0=ym(i)-bh/2;o+=`<rect x="${x0}" y="${y0}" width="${bw}" height="${bh}" fill="#cc0000"/>`;o+=`<text x="${x0+bw+6}" y="${ym(i)}" dominant-baseline="middle" font-size="10" font-weight="600" fill="#111" font-family="'Source Sans 3',sans-serif">${c.val}</text>`;o+=`<text x="${P.l-6}" y="${ym(i)}" text-anchor="end" dominant-baseline="middle" font-size="10" font-weight="600" fill="#111" font-family="'Source Sans 3',sans-serif">${c.name}</text>`;});
   svg.innerHTML=o;
 }
-function renderLinien(ord,sm,step,tc){
+
+function renderLinien(ord,sm,step,tc) {
   const svg=document.getElementById('linien-svg'),W=600,H=260,P={t:20,r:40,b:40,l:44};
   const pw=W-P.l-P.r,ph=H-P.t-P.b,n=ord.length;
   if(!n){svg.innerHTML='';return;}
   const xi=15,uw=pw-2*xi,xp=i=>P.l+xi+(n>1?(i/(n-1))*uw:uw/2),yp=v=>P.t+ph-(v/sm)*ph;
   let o='';
-  for(let t=0;t<=tc;t++){const y=yp(t*step);o+=`<line x1="${P.l}" y1="${y}" x2="${P.l+pw}" y2="${y}" stroke="${t===0?'#000':'#e8e8e8'}" stroke-width="${t===0?1.5:1}"/>`;o+=`<text x="${P.l-6}" y="${y}" text-anchor="end" dominant-baseline="middle" font-size="9.5" font-weight="600" fill="#000" font-family="'Source Sans 3',sans-serif">${t*step}</text>`;}
-  o+=`<line x1="${P.l}" y1="${P.t}" x2="${P.l}" y2="${P.t+ph}" stroke="#000" stroke-width="2"/>`;
-  o+=`<line x1="${P.l}" y1="${P.t+ph}" x2="${P.l+pw}" y2="${P.t+ph}" stroke="#000" stroke-width="2"/>`;
+  for(let t=0;t<=tc;t++){const y=yp(t*step);o+=`<line x1="${P.l}" y1="${y}" x2="${P.l+pw}" y2="${y}" stroke="${t===0?'#111':'#e8e8e8'}" stroke-width="${t===0?1.5:1}"/>`;o+=`<text x="${P.l-6}" y="${y}" text-anchor="end" dominant-baseline="middle" font-size="9.5" font-weight="600" fill="#111" font-family="'Source Sans 3',sans-serif">${t*step}</text>`;}
+  o+=`<line x1="${P.l}" y1="${P.t}" x2="${P.l}" y2="${P.t+ph}" stroke="#111" stroke-width="2"/>`;
+  o+=`<line x1="${P.l}" y1="${P.t+ph}" x2="${P.l+pw}" y2="${P.t+ph}" stroke="#111" stroke-width="2"/>`;
   let ap=`M${xp(0)},${P.t+ph}`;ord.forEach((c,i)=>ap+=` L${xp(i)},${yp(c.val)}`);ap+=` L${xp(n-1)},${P.t+ph} Z`;
   o+=`<path d="${ap}" fill="#cc0000" fill-opacity="0.08"/>`;
   let lp=ord.map((c,i)=>`${i===0?'M':'L'}${xp(i)},${yp(c.val)}`).join(' ');
   o+=`<path d="${lp}" fill="none" stroke="#cc0000" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>`;
-  ord.forEach((c,i)=>{const x=xp(i),y=yp(c.val);o+=`<circle cx="${x}" cy="${y}" r="4" fill="#cc0000" stroke="#fff" stroke-width="1.5"/>`;o+=`<text x="${x}" y="${y-10}" text-anchor="middle" font-size="9.5" font-weight="600" fill="#000" font-family="'Source Sans 3',sans-serif">${c.val}</text>`;o+=`<text x="${x}" y="${P.t+ph+14}" text-anchor="middle" font-size="9.5" font-weight="600" fill="#000" font-family="'Source Sans 3',sans-serif">${c.name}</text>`;});
+  ord.forEach((c,i)=>{const x=xp(i),y=yp(c.val);o+=`<circle cx="${x}" cy="${y}" r="4" fill="#cc0000" stroke="#fff" stroke-width="1.5"/>`;o+=`<text x="${x}" y="${y-10}" text-anchor="middle" font-size="9.5" font-weight="600" fill="#111" font-family="'Source Sans 3',sans-serif">${c.val}</text>`;o+=`<text x="${x}" y="${P.t+ph+14}" text-anchor="middle" font-size="9.5" font-weight="600" fill="#111" font-family="'Source Sans 3',sans-serif">${c.name}</text>`;});
   svg.innerHTML=o;
 }
-function renderKreis(s){
+
+function renderKreis(s) {
   const svg=document.getElementById('pie-svg'),leg=document.getElementById('pie-legend'),tot=s.reduce((a,c)=>a+c.val,0)||1,cx=190,cy=140,r=115;
   let angle=-Math.PI/2,paths='',lh='';
   s.forEach((c,i)=>{
     const sl=(c.val/tot)*2*Math.PI,end=angle+sl,x1=cx+r*Math.cos(angle),y1=cy+r*Math.sin(angle),x2=cx+r*Math.cos(end),y2=cy+r*Math.sin(end),lg=sl>Math.PI?1:0,col=PIE_COLORS[i%PIE_COLORS.length];
     paths+=`<path d="M${cx},${cy} L${x1},${y1} A${r},${r} 0 ${lg},1 ${x2},${y2} Z" fill="${col}" stroke="#fff" stroke-width="1.5"/>`;
-    const mid=angle+sl/2,lx=cx+r*0.65*Math.cos(mid),ly=cy+r*0.65*Math.sin(mid),pct=Math.round((c.val/tot)*100);
+    const mid=angle+sl/2,lx=cx+r*.65*Math.cos(mid),ly=cy+r*.65*Math.sin(mid),pct=Math.round((c.val/tot)*100);
     if(pct>=4)paths+=`<text x="${lx}" y="${ly}" text-anchor="middle" dominant-baseline="middle" font-size="11" font-weight="600" fill="#fff" font-family="'Source Sans 3',sans-serif">${pct}%</text>`;
     lh+=`<div class="legend-item"><div class="legend-dot" style="background:${col}"></div><span>${c.name} (${c.val})</span></div>`;
     angle=end;
   });
-  svg.innerHTML=paths;leg.innerHTML=lh;
+  svg.innerHTML=paths; leg.innerHTML=lh;
 }
-function downloadPNG(){html2canvas(document.getElementById('chart-card'),{backgroundColor:'#fff',scale:2}).then(c=>{const a=document.createElement('a');a.download='diagramm.png';a.href=c.toDataURL('image/png');a.click();});}
 
-// ================================================================
+function downloadPNG() {
+  html2canvas(document.getElementById('chart-card'),{backgroundColor:'#fff',scale:2}).then(c=>{
+    const a=document.createElement('a'); a.download='diagramm.png'; a.href=c.toDataURL('image/png'); a.click();
+  });
+}
+
+// ════════════════════════════════════════════════════
 // CIRCLE LOADER
-// ================================================================
-const CIRC = 2 * Math.PI * 32; // circumference for r=32
+// ════════════════════════════════════════════════════
+const CIRC = 201.06; // 2π×32
 
-function showCircleLoader(containerId, label) {
-  document.getElementById(containerId).innerHTML = `
-    <div class="circle-loader-wrap" id="cl-${containerId}">
-      <svg width="80" height="80" class="circle-svg">
-        <circle class="cl-bg" cx="40" cy="40" r="32"/>
-        <circle class="cl-fg" id="cl-arc-${containerId}" cx="40" cy="40" r="32"/>
-        <text id="cl-pct-${containerId}" x="40" y="46" text-anchor="middle"
-          style="fill:var(--text);font-size:18px;font-family:'Playfair Display',serif;font-weight:700;transform:rotate(90deg);transform-origin:40px 40px">0%</text>
+function showLoader(id, label) {
+  document.getElementById(id).innerHTML = `
+    <div class="loader-wrap" id="lw-${id}">
+      <svg width="80" height="80" class="loader-svg">
+        <circle class="ldr-bg" cx="40" cy="40" r="32"/>
+        <circle class="ldr-fg" id="la-${id}" cx="40" cy="40" r="32"/>
+        <text id="lp-${id}" x="40" y="47" text-anchor="middle"
+          style="fill:var(--text);font-size:17px;font-family:'Playfair Display',serif;font-weight:700;transform:rotate(90deg);transform-origin:40px 40px">0%</text>
       </svg>
-      <div class="cl-label">${label}</div>
+      <div class="ldr-label">${label}</div>
     </div>`;
 }
 
-function setLoaderPct(containerId, pct) {
-  const arc = document.getElementById('cl-arc-' + containerId);
-  const txt = document.getElementById('cl-pct-' + containerId);
+function setPct(id, pct) {
+  const arc = document.getElementById('la-'+id);
+  const txt = document.getElementById('lp-'+id);
   if (!arc || !txt) return;
-  arc.style.strokeDashoffset = CIRC - (pct / 100) * CIRC;
+  arc.style.strokeDashoffset = CIRC - (pct/100)*CIRC;
   txt.textContent = Math.round(pct) + '%';
 }
 
-function animateLoaderTo(containerId, target, duration, cb) {
+function animTo(id, target, ms, cb) {
   const start = performance.now();
-  const from = parseFloat((document.getElementById('cl-arc-' + containerId) || {}).style?.strokeDashoffset || CIRC);
-  const fromPct = 100 - (from / CIRC * 100);
-  function tick(now) {
-    const t = Math.min((now - start) / duration, 1);
-    const ease = 1 - Math.pow(1 - t, 2);
-    const cur = fromPct + (target - fromPct) * ease;
-    setLoaderPct(containerId, cur);
-    if (t < 1) requestAnimationFrame(tick);
+  const from = (() => {
+    const el = document.getElementById('la-'+id);
+    if (!el) return 0;
+    const cur = parseFloat(el.style.strokeDashoffset || CIRC);
+    return Math.round((1 - cur/CIRC)*100);
+  })();
+  function step(now) {
+    const t = Math.min((now-start)/ms, 1);
+    const e = 1-Math.pow(1-t,2);
+    setPct(id, from + (target-from)*e);
+    if (t < 1) requestAnimationFrame(step);
     else if (cb) cb();
   }
-  requestAnimationFrame(tick);
+  requestAnimationFrame(step);
 }
 
-// ================================================================
+// ════════════════════════════════════════════════════
 // SPELL CHECK
-// ================================================================
+// ════════════════════════════════════════════════════
 const ERR_TYPES = {
-  'rechtschreibung': {cls:'se-rs', color:'#f5c518', textColor:'#000', label:'Rechtschreibung'},
-  'grammatik':       {cls:'se-gr', color:'#3b82f6', textColor:'#fff', label:'Grammatik'},
-  'satzzeichen':     {cls:'se-sz', color:'#a855f7', textColor:'#fff', label:'Satzzeichen'},
-  'grossschreibung': {cls:'se-gk', color:'#f97316', textColor:'#000', label:'Groß-/Kleinschr.'},
-  'großschreibung':  {cls:'se-gk', color:'#f97316', textColor:'#000', label:'Groß-/Kleinschr.'},
-  'kleinschreibung': {cls:'se-gk', color:'#f97316', textColor:'#000', label:'Groß-/Kleinschr.'},
-  'ausdruck':        {cls:'se-au', color:'#06b6d4', textColor:'#000', label:'Ausdruck'},
-  'satzstellung':    {cls:'se-ss', color:'#ec4899', textColor:'#fff', label:'Satzstellung'},
-  'wortfehler':      {cls:'se-wf', color:'#84cc16', textColor:'#000', label:'Wortfehler'},
+  'rechtschreibung': {cls:'se-rs', color:'#f5c518', tc:'#000', label:'Rechtschreibung'},
+  'grammatik':       {cls:'se-gr', color:'#3b82f6', tc:'#fff', label:'Grammatik'},
+  'satzzeichen':     {cls:'se-sz', color:'#a855f7', tc:'#fff', label:'Satzzeichen'},
+  'grossschreibung': {cls:'se-gk', color:'#f97316', tc:'#000', label:'Groß-/Kleinschr.'},
+  'großschreibung':  {cls:'se-gk', color:'#f97316', tc:'#000', label:'Groß-/Kleinschr.'},
+  'kleinschreibung': {cls:'se-gk', color:'#f97316', tc:'#000', label:'Groß-/Kleinschr.'},
+  'ausdruck':        {cls:'se-au', color:'#06b6d4', tc:'#000', label:'Ausdruck'},
+  'satzstellung':    {cls:'se-ss', color:'#ec4899', tc:'#fff', label:'Satzstellung'},
+  'wortfehler':      {cls:'se-wf', color:'#84cc16', tc:'#000', label:'Wortfehler'},
 };
-function getErrType(t){
-  const k=(t||'').toLowerCase();
-  for(const [key,val] of Object.entries(ERR_TYPES)){if(k.includes(key))return val;}
-  return {cls:'se-rs',color:'#f5c518',textColor:'#000',label:t||'Fehler'};
+function getErrInfo(t) {
+  const k = (t||'').toLowerCase();
+  for (const [key,val] of Object.entries(ERR_TYPES)) if (k.includes(key)) return val;
+  return {cls:'se-rs', color:'#f5c518', tc:'#000', label: t||'Fehler'};
 }
-function escapeHtml(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
+function esc(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
 
-async function runSpellCheck() {
+async function runSpell() {
   const text = document.getElementById('spell-input').value.trim();
   if (!text) return;
-  const key = getApiKey(); if (!key) return;
 
   const btn = document.getElementById('spell-btn');
-  btn.disabled = true;
-  btn.innerHTML = '<div class="mini-spin"></div> Prüft…';
+  btn.disabled = true; btn.innerHTML = '<div class="mini-spin"></div> Prüft…';
 
-  document.getElementById('spell-errors-list').style.display = 'none';
-  document.getElementById('spell-legend-bar').style.display = 'none';
-  document.getElementById('spell-error-badge').style.display = 'none';
+  document.getElementById('spell-errlist').style.display = 'none';
+  document.getElementById('spell-legend').style.display  = 'none';
+  document.getElementById('spell-badge').style.display   = 'none';
 
-  showCircleLoader('spell-output', 'KI analysiert Ihren Text…');
-  animateLoaderTo('spell-output', 88, 5000);
+  showLoader('spell-out', 'KI analysiert Ihren Text…');
+  animTo('spell-out', 88, 5500);
 
   try {
-    const resp = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {'Content-Type':'application/json','x-api-key':key,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 1500,
-        system: `Du bist ein präziser und strenger Textprüfer für deutschsprachige Texte. Der Kontext: Presseabteilung auf einem deutschen Roleplay-Discord-Server.
+    const raw = await apiCall(`Du bist ein präziser und strenger Textprüfer für deutschsprachige Texte.
+Kontext: Presseabteilung auf einem deutschen Roleplay-Discord-Server.
+KEINE Fehler: Discord-Formatierungen (**,*,||,>), Roleplay-Eigennamen, fiktive Orte.
 
-NUR diese Dinge sind KEINE Fehler:
-- Discord-Formatierungen: **fett**, *kursiv*, ||spoiler||, > Zitat, __unterstrichen__
-- Roleplay-Eigennamen (fiktive Städte, Charakternamen, RP-Organisationen)
+Prüfe ALLE Kategorien sehr gründlich:
+1. Rechtschreibung — falsch geschriebene Wörter
+2. Grammatik — Kasus, Numerus, Konjugation, Genus
+3. Satzzeichen — fehlende/falsche Kommas, Punkte, Anführungszeichen
+4. Großschreibung — Substantive, Satzanfänge, Eigennamen
+5. Ausdruck — unpassende oder umgangssprachliche Wortwahl
+6. Satzstellung — Wortstellung, V2-Regel, Satzbau
+7. Wortfehler — falsches Wort (z.B. "das"/"dass", "seit"/"seid")
 
-Prüfe ALLE folgenden Fehlerkategorien sehr sorgfältig:
+"wrong" MUSS exakt dem Text entsprechen. Sei STRENG.
+NUR reines JSON ohne Backticks:
+{"errors":[{"wrong":"exakt aus Text","correct":"Korrektur","type":"Rechtschreibung|Grammatik|Satzzeichen|Großschreibung|Ausdruck|Satzstellung|Wortfehler","explanation":"kurz"}]}
+Keine Fehler: {"errors":[]}`, text, 1500);
 
-1. Rechtschreibung — falsch geschriebene Wörter (z.B. "schreibt" statt "scheibt")
-2. Grammatik — Kasus, Numerus, Konjugation, Genus (z.B. "dem Haus" statt "den Haus")
-3. Satzzeichen — fehlende Kommas vor Nebensätzen, falsche Punkte, fehlende Anführungszeichen
-4. Großschreibung — Substantive klein geschrieben, Satzanfänge klein, Eigennamen klein
-5. Ausdruck — unpassende oder umgangssprachliche Wortwahl für professionelle Texte
-6. Satzstellung — Verb steht falsch (z.B. V2-Regel verletzt), Satzbau fehlerhaft
-7. Wortfehler — falsches Wort verwendet (z.B. "das" statt "dass", "seit" statt "seid")
-
-WICHTIG: Das Feld "wrong" MUSS exakt dem Text entsprechen wie er vorkommt. Gib wenn nötig 2-3 Wörter Kontext.
-Sei STRENG — lieber einen Fehler mehr melden als einen übersehen.
-
-Antworte NUR mit reinem JSON ohne Backticks, ohne Kommentare:
-{"errors":[{"wrong":"exakter Text aus Original inkl. Kontext","correct":"Korrektur","type":"Rechtschreibung|Grammatik|Satzzeichen|Großschreibung|Ausdruck|Satzstellung|Wortfehler","explanation":"kurze Erklärung"}]}
-Keine Fehler gefunden: {"errors":[]}`,
-        messages: [{ role: 'user', content: text }]
-      })
-    });
-
-    const data = await resp.json();
-    if (!resp.ok || !data.content) {
-      const msg = data?.error?.message || `API-Fehler ${resp.status}`;
-      throw new Error(msg);
-    }
-    const raw = data.content.map(i => i.text || '').join('');
     let parsed;
-    try { parsed = JSON.parse(raw.replace(/```json|```/g, '').trim()); }
-    catch(e) { throw new Error('KI-Antwort konnte nicht verarbeitet werden. Bitte erneut versuchen.'); }
+    try { parsed = JSON.parse(raw.replace(/```json|```/g,'').trim()); }
+    catch(e) { throw new Error('KI-Antwort konnte nicht verarbeitet werden.'); }
+
     const errors = parsed.errors || [];
 
-    animateLoaderTo('spell-output', 100, 400, () => {
-      setTimeout(() => renderSpellResult(text, errors), 150);
-    });
+    animTo('spell-out', 100, 300, () => setTimeout(() => renderSpellResult(text, errors), 120));
 
-  } catch(err) {
-    const spellOut = document.getElementById('spell-output');
-    spellOut.innerHTML = `<div class="tool-placeholder"><div class="icon" style="opacity:1;font-size:22px">⚠️</div><p style="color:#ff6666;max-width:320px">Fehler: ${escapeHtml(err.message)}</p></div>`;
+  } catch(e) {
+    document.getElementById('spell-out').innerHTML = `<div class="placeholder"><div class="placeholder-icon">⚠️</div><p style="color:#ff6666">${esc(e.message)}</p></div>`;
   } finally {
-    btn.disabled = false;
-    btn.innerHTML = 'Text prüfen';
+    btn.disabled = false; btn.innerHTML = 'Text prüfen';
   }
 }
 
 function renderSpellResult(text, errors) {
-  const out = document.getElementById('spell-output');
-  const legend = document.getElementById('spell-legend-bar');
-  const badge = document.getElementById('spell-error-badge');
-  const errList = document.getElementById('spell-errors-list');
-  const errItems = document.getElementById('spell-errors-items');
+  const out    = document.getElementById('spell-out');
+  const legend = document.getElementById('spell-legend');
+  const badge  = document.getElementById('spell-badge');
+  const list   = document.getElementById('spell-errlist');
+  const items  = document.getElementById('spell-erritems');
 
-  // Highlight errors in text
-  let html = escapeHtml(text);
-  const sorted = [...errors].sort((a, b) => b.wrong.length - a.wrong.length);
-  sorted.forEach(e => {
-    const info = getErrType(e.type);
-    const safeW = escapeHtml(e.wrong);
-    const re = new RegExp(safeW.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g');
-    html = html.replace(re, `<span class="se ${info.cls}" title="${escapeHtml(e.type)}: ${escapeHtml(e.correct)} — ${escapeHtml(e.explanation)}">${safeW}</span>`);
+  // Highlighted text
+  let html = esc(text);
+  [...errors].sort((a,b)=>b.wrong.length-a.wrong.length).forEach(e=>{
+    const info = getErrInfo(e.type);
+    const safe = esc(e.wrong);
+    const re   = new RegExp(safe.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'),'g');
+    html = html.replace(re, `<span class="se ${info.cls}" title="${esc(e.type)}: ${esc(e.correct)} — ${esc(e.explanation)}">${safe}</span>`);
   });
   out.innerHTML = html || '<em style="color:#555">Kein Text.</em>';
 
   // Legend
-  const usedTypes = [...new Set(errors.map(e => e.type))];
+  const usedTypes = [...new Set(errors.map(e=>e.type))];
   if (usedTypes.length > 0) {
     legend.innerHTML = usedTypes.map(t => {
-      const info = getErrType(t);
-      return `<div class="leg-pill"><div class="leg-dot" style="background:${info.color}"></div>${info.label}</div>`;
+      const i = getErrInfo(t);
+      return `<div class="err-legend-item"><div class="err-legend-swatch" style="background:${i.color}"></div>${i.label}</div>`;
     }).join('');
     legend.style.display = 'flex';
   }
 
   // Badge
-  badge.textContent = errors.length > 0 ? errors.length + ' Fehler' : '✓ Fehlerfrei';
+  badge.textContent = errors.length > 0 ? errors.length+' Fehler' : '✓ Fehlerfrei';
   badge.style.color = errors.length > 0 ? '#f5c518' : '#22c55e';
   badge.style.display = 'inline';
 
   // Error list
   if (errors.length > 0) {
-    errItems.innerHTML = errors.map(e => {
-      const info = getErrType(e.type);
-      return `<div class="error-item">
-        <span class="error-word" style="background:${info.color};color:${info.textColor}">${escapeHtml(e.wrong)}</span>
-        <span class="error-fix">→ <strong>${escapeHtml(e.correct)}</strong> <em style="color:var(--muted)">(${escapeHtml(e.type)})</em> — ${escapeHtml(e.explanation)}</span>
+    items.innerHTML = errors.map(e => {
+      const i = getErrInfo(e.type);
+      return `<div class="err-item">
+        <span class="err-word" style="background:${i.color};color:${i.tc}">${esc(e.wrong)}</span>
+        <span class="err-fix">→ <strong>${esc(e.correct)}</strong> <em style="color:var(--muted)">(${esc(e.type)})</em> — ${esc(e.explanation)}</span>
       </div>`;
     }).join('');
   } else {
-    errItems.innerHTML = '<div class="error-item" style="color:var(--green)">✓ Keine Fehler gefunden — Text ist korrekt</div>';
+    items.innerHTML = '<div class="err-item" style="color:#22c55e">✓ Keine Fehler gefunden — Text ist korrekt</div>';
   }
-  errList.style.display = 'block';
+  list.style.display = 'block';
 }
 
 function clearSpell() {
   document.getElementById('spell-input').value = '';
-  document.getElementById('spell-char-count').textContent = '0 Zeichen';
-  document.getElementById('spell-output').innerHTML = '<div class="tool-placeholder"><div class="icon">🔍</div><p>Text eingeben und auf „Text prüfen" klicken.<br>Fehler werden farbig nach Typ markiert.</p></div>';
-  document.getElementById('spell-errors-list').style.display = 'none';
-  document.getElementById('spell-legend-bar').style.display = 'none';
-  document.getElementById('spell-error-badge').style.display = 'none';
+  document.getElementById('spell-cc').textContent = '0 Zeichen';
+  document.getElementById('spell-out').innerHTML = '<div class="placeholder"><div class="placeholder-icon">🔍</div><p>Text eingeben und auf „Text prüfen" klicken. Fehler werden farbig nach Typ markiert.</p></div>';
+  document.getElementById('spell-errlist').style.display = 'none';
+  document.getElementById('spell-legend').style.display  = 'none';
+  document.getElementById('spell-badge').style.display   = 'none';
 }
 
-// ================================================================
+// ════════════════════════════════════════════════════
 // IMPROVE
-// ================================================================
-function scoreColor(n){return n>=8?'#22c55e':n>=5?'#f5c518':'#cc0000';}
-function scoreLabel(n){return n>=9?'Hervorragend':n>=8?'Sehr gut':n>=7?'Gut':n>=6?'Befriedigend':n>=5?'Ausreichend':n>=4?'Verbesserungsbedarf':'Überarbeitung nötig';}
+// ════════════════════════════════════════════════════
+function scoreColor(n){ return n>=8?'#22c55e':n>=5?'#f5c518':'#cc0000'; }
+function scoreLabel(n){ return n>=9?'Hervorragend':n>=8?'Sehr gut':n>=7?'Gut':n>=6?'Befriedigend':n>=5?'Ausreichend':n>=4?'Verbesserungsbedarf':'Überarbeitung nötig'; }
 
 function clearImprove() {
   document.getElementById('improve-input').value = '';
-  document.getElementById('improve-char-count').textContent = '0 Zeichen';
-  document.getElementById('improve-result').innerHTML = '<div class="tool-placeholder" style="flex:1"><div class="icon">✨</div><p>Text eingeben und auf „Text bewerten" klicken.</p></div>';
-  document.getElementById('improve-score-badge').style.display = 'none';
+  document.getElementById('improve-cc').textContent = '0 Zeichen';
+  document.getElementById('improve-result').innerHTML = '<div class="placeholder" style="flex:1"><div class="placeholder-icon">✨</div><p>Text eingeben und auf „Text bewerten" klicken.</p></div>';
+  document.getElementById('improve-badge').style.display = 'none';
 }
 
 async function runImprove() {
   const text = document.getElementById('improve-input').value.trim();
   if (!text) return;
-  const key = getApiKey(); if (!key) return;
 
   const btn = document.getElementById('improve-btn');
-  btn.disabled = true;
-  btn.innerHTML = '<div class="mini-spin"></div> Bewertet…';
-  document.getElementById('improve-score-badge').style.display = 'none';
+  btn.disabled = true; btn.innerHTML = '<div class="mini-spin"></div> Bewertet…';
+  document.getElementById('improve-badge').style.display = 'none';
 
-  showCircleLoader('improve-result', 'KI bewertet Ihren Text…');
-  animateLoaderTo('improve-result', 88, 6000);
+  showLoader('improve-result', 'KI bewertet Ihren Text…');
+  animTo('improve-result', 88, 6000);
 
   try {
-    const resp = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {'Content-Type':'application/json','x-api-key':key,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 1000,
-        system: `Experte für professionelle deutsche Texte einer Presseabteilung auf einem Roleplay-Discord-Server. Discord-Markdown und RP-Begriffe sind normal. Bewerte Professionalität, Klarheit, Struktur, Wirkung. NUR JSON ohne Backticks: {"score":<1-10>,"summary":"2-3 Sätze","positives":["..."],"negatives":["..."],"suggestions":["..."]}`,
-        messages: [{ role: 'user', content: text }]
-      })
-    });
+    const raw = await apiCall(`Du bist ein Experte für professionelle deutschsprachige Texte einer Presseabteilung auf einem Roleplay-Discord-Server. Discord-Markdown und RP-Begriffe sind normal. Bewerte Professionalität, Klarheit, Struktur und Wirkung.
+NUR reines JSON ohne Backticks: {"score":<1-10>,"summary":"2-3 Sätze","positives":["..."],"negatives":["..."],"suggestions":["..."]}`, text, 1000);
 
-    const data = await resp.json();
-    if (!resp.ok || !data.content) {
-      throw new Error(data?.error?.message || ('API-Fehler ' + resp.status));
-    }
-    const raw = data.content.map(i => i.text || '').join('');
     let p;
-    try { p = JSON.parse(raw.replace(/```json|```/g, '').trim()); }
-    catch(e) { throw new Error('KI-Antwort konnte nicht verarbeitet werden. Bitte erneut versuchen.'); }
-    const score = Math.min(10, Math.max(1, parseInt(p.score) || 5));
+    try { p = JSON.parse(raw.replace(/```json|```/g,'').trim()); }
+    catch(e) { throw new Error('KI-Antwort konnte nicht verarbeitet werden.'); }
+
+    const score = Math.min(10,Math.max(1,parseInt(p.score)||5));
     const color = scoreColor(score), label = scoreLabel(score);
 
-    animateLoaderTo('improve-result', 100, 400, () => {
-      setTimeout(() => {
-        const badge = document.getElementById('improve-score-badge');
-        badge.textContent = score + '/10 — ' + label;
-        badge.style.display = 'inline-block';
-        badge.style.color = color;
+    animTo('improve-result', 100, 300, () => setTimeout(() => {
+      const badge = document.getElementById('improve-badge');
+      badge.textContent = score+'/10 — '+label;
+      badge.style.color = color;
+      badge.style.display = 'inline-block';
 
-        const r = 32, circ = 2 * Math.PI * r;
-        const offset = circ - (score / 10) * circ;
-        const ph = (p.positives||[]).map(x=>`<div class="fb"><div class="fb-dot p"></div><div>${escapeHtml(x)}</div></div>`).join('');
-        const nh = (p.negatives||[]).map(x=>`<div class="fb"><div class="fb-dot n"></div><div>${escapeHtml(x)}</div></div>`).join('');
-        const sh = (p.suggestions||[]).map(x=>`<div class="fb"><div class="fb-dot s"></div><div>${escapeHtml(x)}</div></div>`).join('');
+      const r=32, circ=2*Math.PI*r, offset=circ-(score/10)*circ;
+      const ph=(p.positives||[]).map(x=>`<div class="fb"><div class="fb-dot p"></div><div>${esc(x)}</div></div>`).join('');
+      const nh=(p.negatives||[]).map(x=>`<div class="fb"><div class="fb-dot n"></div><div>${esc(x)}</div></div>`).join('');
+      const sh=(p.suggestions||[]).map(x=>`<div class="fb"><div class="fb-dot s"></div><div>${esc(x)}</div></div>`).join('');
 
-        document.getElementById('improve-result').innerHTML = `
-          <div class="score-box">
-            <div class="score-ring">
-              <svg width="72" height="72"><circle cx="36" cy="36" r="${r}" fill="none" stroke="var(--border2)" stroke-width="5"/><circle cx="36" cy="36" r="${r}" fill="none" stroke="${color}" stroke-width="5" stroke-linecap="round" stroke-dasharray="${circ}" stroke-dashoffset="${offset}"/></svg>
-              <div class="score-overlay"><div class="score-num" style="color:${color}">${score}</div><div class="score-den">/ 10</div></div>
-            </div>
-            <div class="score-info"><h2 style="color:${color}">${label}</h2><p>${escapeHtml(p.summary||'')}</p></div>
+      document.getElementById('improve-result').innerHTML = `
+        <div class="score-box">
+          <div class="score-ring">
+            <svg width="70" height="70"><circle cx="35" cy="35" r="${r}" fill="none" stroke="var(--border2)" stroke-width="5"/><circle cx="35" cy="35" r="${r}" fill="none" stroke="${color}" stroke-width="5" stroke-linecap="round" stroke-dasharray="${circ}" stroke-dashoffset="${offset}"/></svg>
+            <div class="score-overlay"><div class="score-num" style="color:${color}">${score}</div><div class="score-den">/ 10</div></div>
           </div>
-          ${ph?`<div class="improve-section"><h3 class="h3-pos">✓ Stärken</h3>${ph}</div>`:''}
-          ${nh?`<div class="improve-section"><h3 class="h3-neg">✗ Schwächen</h3>${nh}</div>`:''}
-          ${sh?`<div class="improve-section"><h3 class="h3-sug">→ Verbesserungsvorschläge</h3>${sh}</div>`:''}`;
-      }, 150);
-    });
+          <div class="score-info"><h2 style="color:${color}">${label}</h2><p>${esc(p.summary||'')}</p></div>
+        </div>
+        ${ph?`<div class="impr-section"><h3 class="h3-pos">✓ Stärken</h3>${ph}</div>`:''}
+        ${nh?`<div class="impr-section"><h3 class="h3-neg">✗ Schwächen</h3>${nh}</div>`:''}
+        ${sh?`<div class="impr-section"><h3 class="h3-sug">→ Verbesserungsvorschläge</h3>${sh}</div>`:''}`;
+    }, 120));
 
-  } catch(err) {
-    document.getElementById('improve-result').innerHTML = `<div class="tool-placeholder"><div class="icon" style="opacity:1;font-size:22px">⚠️</div><p style="color:#ff6666;max-width:320px">Fehler: ${escapeHtml(err.message)}</p></div>`;
+  } catch(e) {
+    document.getElementById('improve-result').innerHTML = `<div class="placeholder"><div class="placeholder-icon">⚠️</div><p style="color:#ff6666">${esc(e.message)}</p></div>`;
   } finally {
-    btn.disabled = false;
-    btn.innerHTML = 'Text bewerten';
+    btn.disabled = false; btn.innerHTML = 'Text bewerten';
   }
 }
 
+// ════════════════════════════════════════════════════
 // INIT
-buildSidebar(); setType('saulen'); showPage('spell');
+// ════════════════════════════════════════════════════
+buildSidebar();
+setType('saulen');
+showPage('spell');
 </script>
 </body>
 </html>
