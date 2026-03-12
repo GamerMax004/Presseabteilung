@@ -556,8 +556,14 @@ Keine Fehler gefunden: {"errors":[]}`,
     });
 
     const data = await resp.json();
+    if (!resp.ok || !data.content) {
+      const msg = data?.error?.message || `API-Fehler ${resp.status}`;
+      throw new Error(msg);
+    }
     const raw = data.content.map(i => i.text || '').join('');
-    const parsed = JSON.parse(raw.replace(/```json|```/g, '').trim());
+    let parsed;
+    try { parsed = JSON.parse(raw.replace(/```json|```/g, '').trim()); }
+    catch(e) { throw new Error('KI-Antwort konnte nicht verarbeitet werden. Bitte erneut versuchen.'); }
     const errors = parsed.errors || [];
 
     animateLoaderTo('spell-output', 100, 400, () => {
@@ -669,8 +675,13 @@ async function runImprove() {
     });
 
     const data = await resp.json();
+    if (!resp.ok || !data.content) {
+      throw new Error(data?.error?.message || ('API-Fehler ' + resp.status));
+    }
     const raw = data.content.map(i => i.text || '').join('');
-    const p = JSON.parse(raw.replace(/```json|```/g, '').trim());
+    let p;
+    try { p = JSON.parse(raw.replace(/```json|```/g, '').trim()); }
+    catch(e) { throw new Error('KI-Antwort konnte nicht verarbeitet werden. Bitte erneut versuchen.'); }
     const score = Math.min(10, Math.max(1, parseInt(p.score) || 5));
     const color = scoreColor(score), label = scoreLabel(score);
 
