@@ -3,567 +3,1939 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PressPortal</title>
+<title>Presse-Portal</title>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Source+Sans+3:wght@300;400;600;700&display=swap');
-*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
-:root{
-  --red:#cc0000;--dark:#0f0f0f;--panel:#161616;--surface:#1e1e1e;
-  --surf2:#252525;--border:#2a2a2a;--border2:#363636;--muted:#5a5a5a;
-  --text2:#999;--text:#edeae5;--bg:#0a0a0a;--green:#22c55e;
-  --blue:#3b82f6;--nav-h:54px;--hdr-h:64px;--lbl-h:34px;
-}
-html,body{height:100%;font-family:'Source Sans 3',sans-serif;background:var(--bg);color:var(--text);overflow:hidden;}
-::-webkit-scrollbar{width:4px;height:4px;}
-::-webkit-scrollbar-track{background:transparent;}
-::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px;}
-::-webkit-scrollbar-thumb:hover{background:var(--muted);}
+  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400&family=Source+Sans+3:wght@300;400;600;700&display=swap');
+  * { margin:0; padding:0; box-sizing:border-box; }
 
-/* ── NAV ─────────────────────────────────────── */
-#topnav{
-  position:fixed;top:0;left:0;right:0;z-index:200;
-  height:var(--nav-h);background:var(--dark);border-bottom:1px solid var(--border);
-  display:flex;align-items:center;padding:0 0 0 24px;
-}
-.nav-brand{font-family:'Playfair Display',serif;font-size:15px;color:#ddc8c8;letter-spacing:.06em;margin-right:36px;white-space:nowrap;flex-shrink:0;}
-.nav-brand em{color:var(--red);font-style:normal;}
-.nav-tabs{display:flex;height:var(--nav-h);flex:1;}
-.nav-tab{
-  height:var(--nav-h);padding:0 22px;display:flex;align-items:center;gap:8px;
-  font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
-  color:var(--muted);background:none;border:none;border-bottom:2px solid transparent;
-  cursor:pointer;font-family:inherit;transition:color .15s,border-color .15s;white-space:nowrap;
-}
-.nav-tab:hover{color:var(--text2);}
-.nav-tab.active{color:var(--text);border-bottom-color:var(--red);}
-.tab-dot{width:6px;height:6px;border-radius:50%;background:currentColor;opacity:.4;flex-shrink:0;}
-.nav-tab.active .tab-dot{opacity:1;background:var(--red);}
+  :root {
+    --red: #cc0000;
+    --red-light: #ff4444;
+    --dark: #111111;
+    --mid: #1e1e1e;
+    --surface: #252525;
+    --border: #333;
+    --muted: #777;
+    --text: #f0ede8;
+    --bg: #0d0d0d;
+    --sidebar-w: 280px;
+    --yellow: #f5c518;
+    --green: #22c55e;
+    --blue: #3b82f6;
+  }
 
-/* ── PAGES ───────────────────────────────────── */
-.page{display:none;position:fixed;top:var(--nav-h);left:0;right:0;bottom:26px;}
-.page.active{display:flex;}
+  body {
+    font-family: 'Source Sans 3', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
 
-/* ── DIAGRAM ─────────────────────────────────── */
-#page-diagram{flex-direction:row;}
-#diag-sidebar{width:300px;min-width:300px;background:var(--panel);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;flex-shrink:0;}
-.sidebar-head{height:var(--hdr-h);border-bottom:1px solid var(--border);padding:0 20px;display:flex;align-items:center;flex-shrink:0;}
-.sidebar-head h1{font-family:'Playfair Display',serif;font-size:16px;color:#ddc8c8;}
-.sidebar-body{flex:1;overflow-y:auto;padding:18px 16px;display:flex;flex-direction:column;gap:18px;}
-.sec-label{font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:6px;}
-.sidebar-body input[type="text"],.sidebar-body input[type="number"]{width:100%;background:var(--surf2);border:1px solid var(--border2);color:var(--text);padding:7px 10px;font-size:12px;font-family:inherit;border-radius:3px;margin-bottom:6px;outline:none;transition:border-color .15s;}
-.sidebar-body input:focus{border-color:var(--red);}
-.toggle-row{display:flex;flex-wrap:wrap;gap:5px;}
-.toggle-btn{flex:1 1 calc(50% - 3px);padding:8px 6px;font-size:11px;font-family:inherit;background:var(--surf2);border:1px solid var(--border2);color:var(--muted);border-radius:3px;cursor:pointer;transition:all .15s;white-space:nowrap;text-align:center;}
-.toggle-btn.active{background:var(--red);border-color:var(--red);color:#fff;font-weight:700;}
-.toggle-btn:hover:not(.active){border-color:var(--muted);color:var(--text2);}
-.cat-row{display:flex;align-items:center;gap:5px;margin-bottom:5px;}
-.cat-row input{background:var(--surf2);border:1px solid var(--border2);color:var(--text);padding:5px 8px;font-size:11px;font-family:inherit;border-radius:3px;outline:none;}
-.cat-row input:focus{border-color:var(--red);}
-.cat-row input.cn{flex:2;}.cat-row input.cv{flex:1;text-align:center;}
-.btn-del{background:none;border:1px solid var(--border2);color:var(--muted);width:24px;height:24px;border-radius:3px;cursor:pointer;font-size:14px;line-height:1;flex-shrink:0;transition:all .15s;}
-.btn-del:hover{border-color:var(--red);color:var(--red);}
-.btn-add{width:100%;background:none;border:1px dashed var(--border2);color:var(--muted);padding:7px;font-size:11px;font-family:inherit;border-radius:3px;cursor:pointer;margin-top:2px;transition:all .2s;}
-.btn-add:hover{border-color:var(--red);color:var(--red);}
-.btn-dl{width:100%;background:var(--red);border:none;color:#fff;padding:10px;font-size:11px;font-family:inherit;font-weight:700;border-radius:3px;cursor:pointer;letter-spacing:.06em;text-transform:uppercase;transition:opacity .2s;}
-.btn-dl:hover{opacity:.85;}
-#diag-main{flex:1;overflow:auto;display:flex;justify-content:center;align-items:flex-start;padding:32px 28px;background:var(--bg);}
+  /* ===== TOP NAV ===== */
+  #topnav {
+    background: var(--dark);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    height: 52px;
+    padding: 0 24px;
+    gap: 0;
+    flex-shrink: 0;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
 
-/* chart card (white for export) */
-.chart-card{background:#fff;width:100%;max-width:700px;padding:36px 40px 30px;border:1px solid #ccc;box-shadow:0 6px 32px rgba(0,0,0,.55);}
-.chart-header{margin-bottom:22px;border-bottom:2px solid #111;padding-bottom:12px;}
-.chart-title{font-family:'Playfair Display',serif;font-size:20px;color:#111;line-height:1.3;margin-bottom:4px;}
-.chart-subtitle{font-size:12px;color:#444;}
-.chart-footer{margin-top:18px;padding-top:10px;border-top:1px solid #ddd;font-size:10px;color:#666;font-style:italic;}
-#saulen-chart{display:none;}
-.saulen-plot-wrap{position:relative;}
-.saulen-plot{display:flex;align-items:flex-end;height:260px;border-bottom:2px solid #111;border-left:2px solid #111;position:relative;margin-left:40px;}
-.saulen-gl{position:absolute;left:0;right:0;border-top:1px solid #e8e8e8;pointer-events:none;}
-.saulen-gl.zero{border-top:1.5px solid #111;}
-.saulen-group{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;padding:0 4px;position:relative;z-index:2;}
-.saulen-rect{width:100%;max-width:48px;background:#cc0000;position:relative;}
-.saulen-vl{position:absolute;top:-16px;left:50%;transform:translateX(-50%);font-size:10px;font-weight:600;color:#111;white-space:nowrap;}
-.saulen-xlabels{display:flex;margin-top:6px;margin-left:40px;}
-.saulen-xlabel{flex:1;text-align:center;font-size:10px;color:#111;font-weight:600;line-height:1.3;word-break:break-word;hyphens:auto;}
-.y-axis-labels{position:absolute;left:0;top:0;height:260px;width:36px;pointer-events:none;}
-.y-lbl{position:absolute;right:4px;font-size:9.5px;color:#111;font-weight:600;text-align:right;transform:translateY(50%);}
-#balken-chart{display:none;}#balken-chart svg{display:block;width:100%;}
-#linien-chart{display:none;}#linien-chart svg{display:block;width:100%;}
-#kreis-chart{display:none;}
-#pie-svg{display:block;margin:0 auto;}
-.pie-legend{display:flex;flex-wrap:wrap;gap:7px 14px;margin-top:16px;justify-content:center;}
-.legend-item{display:flex;align-items:center;gap:5px;font-size:11px;color:#111;font-weight:600;}
-.legend-dot{width:10px;height:10px;border-radius:2px;flex-shrink:0;}
+  .nav-brand {
+    font-family: 'Playfair Display', serif;
+    font-size: 16px;
+    color: #e8c8c8;
+    letter-spacing: 0.04em;
+    margin-right: 32px;
+    white-space: nowrap;
+  }
+  .nav-brand span { color: var(--red); }
 
-/* ── SPELL / IMPROVE SHARED ──────────────────── */
-#page-spell,#page-improve{flex-direction:column;}
-.tool-header{height:var(--hdr-h);background:var(--panel);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 28px;flex-shrink:0;}
-.hdr-left h1{font-family:'Playfair Display',serif;font-size:18px;color:#ddc8c8;line-height:1;margin-bottom:3px;}
-.hdr-left p{font-size:11px;color:var(--muted);}
-.hdr-right{display:flex;gap:8px;align-items:center;}
-.tool-body{flex:1;display:grid;grid-template-columns:1fr 1fr;min-height:0;}
-.panel-left{display:flex;flex-direction:column;border-right:1px solid var(--border);overflow:hidden;}
-.panel-right{display:flex;flex-direction:column;overflow:hidden;}
-.panel-bar{height:var(--lbl-h);background:var(--panel);border-bottom:1px solid var(--border);padding:0 20px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;font-size:9.5px;font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:var(--muted);}
-textarea.tarea{flex:1;width:100%;background:var(--surface);border:none;color:var(--text);font-family:'Source Sans 3',sans-serif;font-size:14px;line-height:1.75;padding:22px 24px;resize:none;outline:none;min-height:0;}
-textarea.tarea::placeholder{color:#383838;}
-.output-area{flex:1;overflow-y:auto;padding:22px 24px;font-size:14px;line-height:1.75;color:var(--text);background:var(--surface);white-space:pre-wrap;word-wrap:break-word;min-height:0;}
-.result-area{flex:1;overflow-y:auto;background:var(--surface);display:flex;flex-direction:column;min-height:0;}
-.errors-strip{border-top:1px solid var(--border);flex-shrink:0;max-height:160px;overflow-y:auto;background:var(--panel);}
-.errors-strip-head{font-size:9.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);padding:9px 20px 7px;border-bottom:1px solid var(--border);}
-.err-legend{display:flex;flex-wrap:wrap;gap:5px 14px;padding:7px 20px;border-bottom:1px solid var(--border);background:var(--panel);flex-shrink:0;}
-.err-legend-item{display:flex;align-items:center;gap:4px;font-size:9.5px;color:var(--text2);}
-.err-legend-swatch{width:9px;height:9px;border-radius:2px;flex-shrink:0;}
-.se{border-radius:2px;padding:0 2px;cursor:help;font-weight:600;}
-.se-rs{background:#f5c518;color:#000;}.se-gr{background:#3b82f6;color:#fff;}.se-sz{background:#a855f7;color:#fff;}
-.se-gk{background:#f97316;color:#000;}.se-au{background:#06b6d4;color:#000;}.se-ss{background:#ec4899;color:#fff;}
-.se-wf{background:#84cc16;color:#000;}
-.err-item{display:flex;align-items:flex-start;gap:10px;padding:7px 20px;border-bottom:1px solid #181818;font-size:11.5px;}
-.err-item:last-child{border-bottom:none;}
-.err-word{font-weight:700;padding:1px 6px;border-radius:2px;flex-shrink:0;font-size:11px;white-space:nowrap;}
-.err-fix{color:var(--text2);}.err-fix strong{color:var(--green);}
-.placeholder{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;color:var(--muted);text-align:center;padding:40px;}
-.placeholder-icon{font-size:28px;opacity:.2;}
-.placeholder p{font-size:12px;line-height:1.65;max-width:280px;}
+  .nav-tabs {
+    display: flex;
+    gap: 2px;
+    flex: 1;
+  }
 
-/* circle loader */
-.loader-wrap{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;background:var(--surface);}
-.loader-svg{transform:rotate(-90deg);}
-.ldr-bg{fill:none;stroke:var(--border2);stroke-width:5;}
-.ldr-fg{fill:none;stroke:var(--red);stroke-width:5;stroke-linecap:round;stroke-dasharray:201.06;stroke-dashoffset:201.06;transition:stroke-dashoffset .3s ease;}
-.ldr-label{font-size:11.5px;color:var(--muted);letter-spacing:.03em;}
+  .nav-tab {
+    padding: 0 20px;
+    height: 52px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12.5px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--muted);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: all 0.18s;
+    white-space: nowrap;
+    background: none;
+    border-top: none;
+    border-left: none;
+    border-right: none;
+    font-family: inherit;
+  }
+  .nav-tab:hover { color: #ccc; }
+  .nav-tab.active { color: var(--text); border-bottom-color: var(--red); }
+  .nav-tab .tab-icon { font-size: 14px; }
 
-/* improve result */
-.score-box{background:var(--panel);border-bottom:1px solid var(--border);padding:18px 22px;display:flex;align-items:center;gap:18px;flex-shrink:0;}
-.score-ring{position:relative;width:70px;height:70px;flex-shrink:0;}
-.score-ring svg{position:absolute;top:0;left:0;transform:rotate(-90deg);}
-.score-overlay{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;}
-.score-num{font-family:'Playfair Display',serif;font-size:22px;font-weight:700;line-height:1;}
-.score-den{font-size:9px;color:var(--muted);}
-.score-info h2{font-size:14px;font-weight:700;margin-bottom:3px;}
-.score-info p{font-size:12px;color:var(--text2);line-height:1.5;}
-.impr-section{padding:14px 22px;border-bottom:1px solid var(--border);}
-.impr-section:last-child{border-bottom:none;}
-.impr-section h3{font-size:9.5px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;margin-bottom:10px;}
-.h3-pos{color:var(--green);}.h3-neg{color:var(--red);}.h3-sug{color:var(--blue);}
-.fb{display:flex;gap:9px;margin-bottom:7px;font-size:12.5px;line-height:1.55;color:#c0bcb6;}
-.fb:last-child{margin-bottom:0;}
-.fb-dot{width:5px;height:5px;border-radius:50%;flex-shrink:0;margin-top:7px;}
-.fb-dot.p{background:var(--green);}.fb-dot.n{background:var(--red);}.fb-dot.s{background:var(--blue);}
+  /* ===== PAGES ===== */
+  .page { display: none; flex: 1; }
+  .page.active { display: flex; }
 
-/* buttons */
-.btn-p{background:var(--red);border:none;color:#fff;padding:8px 18px;font-size:11px;font-family:inherit;font-weight:700;border-radius:3px;cursor:pointer;letter-spacing:.07em;text-transform:uppercase;transition:opacity .2s;white-space:nowrap;display:inline-flex;align-items:center;gap:7px;}
-.btn-p:hover{opacity:.83;}.btn-p:disabled{opacity:.4;cursor:default;}
-.btn-s{background:var(--surf2);border:1px solid var(--border2);color:var(--text2);padding:7px 14px;font-size:11px;font-family:inherit;font-weight:600;border-radius:3px;cursor:pointer;transition:all .15s;white-space:nowrap;}
-.btn-s:hover{border-color:var(--muted);color:var(--text);}
-.mini-spin{width:12px;height:12px;border:2px solid rgba(255,255,255,.25);border-top-color:#fff;border-radius:50%;animation:spin .6s linear infinite;}
-@keyframes spin{to{transform:rotate(360deg);}}
+  /* ===== DIAGRAM PAGE ===== */
+  #page-diagram {
+    overflow: hidden;
+    height: calc(100vh - 52px);
+  }
 
-/* status bar */
-#statusbar{position:fixed;bottom:0;left:0;right:0;height:26px;background:var(--dark);border-top:1px solid var(--border);display:flex;align-items:center;padding:0 18px;font-size:10px;color:var(--muted);letter-spacing:.04em;z-index:100;}
-.s-dot{width:5px;height:5px;border-radius:50%;background:var(--green);display:inline-block;margin-right:6px;}
-.s-dot.err{background:var(--red);}
+  /* SIDEBAR */
+  #sidebar {
+    width: var(--sidebar-w);
+    min-width: var(--sidebar-w);
+    background: var(--dark);
+    border-right: 1px solid var(--border);
+    padding: 16px 14px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    flex-shrink: 0;
+  }
+
+  #sidebar h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 14px;
+    color: #e8c8c8;
+    border-bottom: 1px solid #333;
+    padding-bottom: 8px;
+  }
+
+  .section-label {
+    font-size: 9px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 5px;
+  }
+
+  #sidebar input[type="text"],
+  #sidebar input[type="number"] {
+    width: 100%;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 6px 9px;
+    font-size: 12px;
+    font-family: inherit;
+    border-radius: 3px;
+    margin-bottom: 6px;
+  }
+  #sidebar input:focus { outline: none; border-color: var(--red); }
+
+  .toggle-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+  }
+
+  .toggle-btn {
+    flex: 1 1 calc(50% - 4px);
+    padding: 7px 4px;
+    font-size: 11px;
+    font-family: inherit;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--muted);
+    border-radius: 3px;
+    cursor: pointer;
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+  .toggle-btn.active { background: var(--red); border-color: var(--red); color: #fff; font-weight: 600; }
+  .toggle-btn:hover:not(.active) { border-color: var(--red); color: #ccc; }
+
+  .cat-row {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin-bottom: 5px;
+  }
+  .cat-row input.cat-name { flex: 2; background: var(--surface); border: 1px solid var(--border); color: var(--text); padding: 5px 7px; font-size: 11px; font-family: inherit; border-radius: 3px; }
+  .cat-row input.cat-val  { flex: 1; background: var(--surface); border: 1px solid var(--border); color: var(--text); padding: 5px 7px; font-size: 11px; font-family: inherit; border-radius: 3px; text-align: center; }
+  .cat-row input:focus { outline: none; border-color: var(--red); }
+
+  .btn-del { background: none; border: 1px solid #444; color: var(--muted); width: 22px; height: 22px; border-radius: 3px; cursor: pointer; font-size: 13px; line-height: 1; flex-shrink: 0; }
+  .btn-del:hover { border-color: var(--red); color: var(--red); }
+
+  .btn-add { width: 100%; background: var(--surface); border: 1px dashed #555; color: var(--muted); padding: 6px; font-size: 11px; font-family: inherit; border-radius: 3px; cursor: pointer; margin-top: 3px; transition: all 0.2s; }
+  .btn-add:hover { border-color: var(--red); color: var(--red); }
+
+  .btn-download { width: 100%; background: var(--red); border: none; color: #fff; padding: 9px; font-size: 12px; font-family: inherit; font-weight: 600; border-radius: 3px; cursor: pointer; letter-spacing: 0.04em; transition: opacity 0.2s; }
+  .btn-download:hover { opacity: 0.85; }
+
+  /* MAIN CHART AREA */
+  #main-diagram {
+    flex: 1;
+    overflow: auto;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 30px 24px;
+    background: var(--bg);
+  }
+
+  .chart-card {
+    background: #ffffff;
+    width: 100%;
+    max-width: 700px;
+    padding: 34px 38px 30px;
+    border: 1px solid #d0d0d0;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.5);
+  }
+
+  .chart-header { margin-bottom: 24px; border-bottom: 2px solid #000; padding-bottom: 11px; }
+  .chart-title  { font-family: 'Playfair Display', serif; font-size: 19px; color: #000; line-height: 1.3; margin-bottom: 4px; }
+  .chart-subtitle { font-size: 12px; color: #444; }
+  .chart-footer { margin-top: 18px; padding-top: 10px; border-top: 1px solid #ccc; font-size: 10px; color: #555; font-style: italic; }
+
+  .bar-area { position: relative; }
+  #saulen-chart { display:none; }
+  .saulen-plot-wrap { position: relative; }
+  .saulen-plot {
+    display: flex; align-items: flex-end;
+    height: 260px;
+    border-bottom: 2px solid #000; border-left: 2px solid #000;
+    position: relative; margin-left: 40px;
+  }
+  .saulen-gl { position:absolute; left:0; right:0; border-top:1px solid #e8e8e8; pointer-events:none; }
+  .saulen-gl.zero { border-top:1.5px solid #000; }
+  .saulen-group { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:flex-end; height:100%; padding:0 4px; position:relative; z-index:2; }
+  .saulen-rect  { width:100%; max-width:48px; background:#cc0000; position:relative; }
+  .saulen-vl    { position:absolute; top:-16px; left:50%; transform:translateX(-50%); font-size:10px; font-weight:600; color:#000; white-space:nowrap; }
+  .saulen-xlabels { display:flex; margin-top:6px; margin-left:40px; }
+  .saulen-xlabel  { flex:1; text-align:center; font-size:10px; color:#000; font-weight:600; line-height:1.3; padding:0 1px; word-break:break-word; hyphens:auto; }
+  .y-axis-labels  { position:absolute; left:0; top:0; height:260px; width:36px; pointer-events:none; }
+  .y-lbl { position:absolute; right:4px; font-size:9.5px; color:#000; font-weight:600; text-align:right; transform:translateY(50%); }
+
+  #balken-chart { display:none; }
+  #balken-chart svg { display:block; width:100%; }
+  #linien-chart { display:none; }
+  #linien-chart svg { display:block; width:100%; }
+  #kreis-chart { display:none; }
+  #pie-svg { display:block; margin:0 auto; }
+  .pie-legend { display:flex; flex-wrap:wrap; gap:7px 14px; margin-top:16px; justify-content:center; }
+  .legend-item { display:flex; align-items:center; gap:5px; font-size:11px; color:#000; font-weight:600; }
+  .legend-dot  { width:11px; height:11px; border-radius:2px; flex-shrink:0; }
+
+  /* ===== SHARED TOOL PAGES (Spell + Improve) ===== */
+  #page-spell,
+  #page-improve {
+    flex-direction: column;
+    overflow: hidden;
+    height: calc(100vh - 52px);
+  }
+
+  /* -- Unified header -- */
+  .tool-header {
+    background: var(--dark);
+    border-bottom: 1px solid var(--border);
+    padding: 18px 28px 14px;
+    height: 72px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-shrink: 0;
+  }
+
+  .tool-header-left h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 20px;
+    color: #e8c8c8;
+    margin-bottom: 3px;
+    line-height: 1.2;
+  }
+  .tool-header-left p { font-size: 12px; color: var(--muted); }
+
+  .tool-actions {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+
+  /* -- Buttons -- */
+  .btn-primary {
+    background: var(--red);
+    border: none;
+    color: #fff;
+    padding: 9px 20px;
+    font-size: 12px;
+    font-family: inherit;
+    font-weight: 700;
+    border-radius: 3px;
+    cursor: pointer;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    transition: opacity 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    white-space: nowrap;
+  }
+  .btn-primary:hover { opacity: 0.85; }
+  .btn-primary:disabled { opacity: 0.45; cursor: default; }
+
+  .btn-secondary {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 8px 16px;
+    font-size: 12px;
+    font-family: inherit;
+    font-weight: 600;
+    border-radius: 3px;
+    cursor: pointer;
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+  .btn-secondary:hover { border-color: var(--muted); }
+
+  /* -- Split body -- */
+  .tool-body {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    overflow: hidden;
+  }
+
+  /* -- Left panel (input) -- */
+  .tool-panel-left {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    border-right: 1px solid var(--border);
+  }
+
+  /* -- Right panel (output) -- */
+  .tool-panel-right {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  /* -- Panel label bar -- */
+  .panel-label {
+    background: var(--dark);
+    border-bottom: 1px solid var(--border);
+    padding: 10px 20px;
+    height: 38px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-shrink: 0;
+  }
+
+  /* -- Shared textarea -- */
+  .tool-textarea {
+    flex: 1;
+    width: 100%;
+    background: var(--mid);
+    border: none;
+    color: var(--text);
+    font-family: 'Source Sans 3', sans-serif;
+    font-size: 14px;
+    line-height: 1.7;
+    padding: 20px 24px;
+    resize: none;
+    outline: none;
+  }
+  .tool-textarea::placeholder { color: #555; }
+
+  /* -- Shared output area -- */
+  .tool-output {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px 24px;
+    font-family: 'Source Sans 3', sans-serif;
+    font-size: 14px;
+    line-height: 1.7;
+    color: var(--text);
+    background: var(--mid);
+    white-space: pre-wrap;
+    word-wrap: break-word;
+  }
+
+  /* -- Bottom details strip (spell errors list) -- */
+  .tool-details {
+    border-top: 1px solid var(--border);
+    flex-shrink: 0;
+    max-height: 140px;
+    overflow-y: auto;
+    background: var(--dark);
+  }
+  .tool-details h3 {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    padding: 10px 20px 6px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  /* -- Placeholder -- */
+  .tool-placeholder {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    color: var(--muted);
+    text-align: center;
+    padding: 40px;
+  }
+  .tool-placeholder .icon { font-size: 32px; opacity: 0.3; }
+  .tool-placeholder p { font-size: 12px; line-height: 1.6; max-width: 280px; }
+
+  /* -- Loading spinner -- */
+  .tool-loading {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 20px 24px;
+    color: var(--muted);
+    font-size: 13px;
+  }
+
+  .spinner {
+    width: 16px; height: 16px;
+    border: 2px solid var(--border);
+    border-top-color: var(--red);
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    flex-shrink: 0;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* -- Spell error highlight -- */
+  .spell-error {
+    background: var(--yellow);
+    color: #000;
+    border-radius: 2px;
+    padding: 0 2px;
+    cursor: help;
+    font-weight: 600;
+  }
+
+  .error-count {
+    background: var(--yellow);
+    color: #000;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 7px;
+    border-radius: 10px;
+    letter-spacing: 0;
+  }
+
+  .error-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 8px 20px;
+    border-bottom: 1px solid #1a1a1a;
+    font-size: 12px;
+  }
+  .error-item:last-child { border-bottom: none; }
+  .error-word { background: var(--yellow); color: #000; font-weight: 700; padding: 1px 5px; border-radius: 2px; flex-shrink: 0; }
+  .error-fix { color: #aaa; }
+  .error-fix strong { color: var(--green); }
+
+  /* -- Improve score & feedback -- */
+  .score-box {
+    background: var(--dark);
+    border-bottom: 1px solid var(--border);
+    padding: 20px 24px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    flex-shrink: 0;
+  }
+  .score-circle {
+    width: 68px; height: 68px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    flex-shrink: 0;
+    border: 3px solid var(--border);
+  }
+  .score-number { font-family: 'Playfair Display', serif; font-size: 26px; line-height: 1; font-weight: 700; }
+  .score-denom  { font-size: 10px; color: var(--muted); margin-top: 2px; }
+  .score-info h2 { font-size: 14px; font-weight: 700; margin-bottom: 4px; }
+  .score-info p  { font-size: 12px; color: #aaa; line-height: 1.5; }
+
+  .improve-section { padding: 16px 24px; border-bottom: 1px solid var(--border); }
+  .improve-section:last-child { border-bottom: none; }
+  .improve-section h3 {
+    font-size: 10px; font-weight: 700; letter-spacing: 0.12em;
+    text-transform: uppercase; margin-bottom: 10px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .h3-pos { color: var(--green); }
+  .h3-neg { color: var(--red); }
+  .h3-sug { color: var(--blue); }
+
+  .feedback-item { display: flex; gap: 10px; margin-bottom: 8px; font-size: 13px; line-height: 1.5; color: #ccc; }
+  .feedback-item:last-child { margin-bottom: 0; }
+  .fi-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; margin-top: 6px; }
+  .fi-dot.pos { background: var(--green); }
+  .fi-dot.neg { background: var(--red); }
+  .fi-dot.sug { background: var(--blue); }
+
+  /* scrollbar */
+  ::-webkit-scrollbar { width: 5px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: #333; border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: #555; }
+
+  /* ================================================================
+     RESPONSIVE — Tablet (≤900px)
+  ================================================================ */
+  @media (max-width: 900px) {
+    :root { --sidebar-w: 220px; }
+
+    .nav-tab { padding: 0 12px; font-size: 11px; }
+    .nav-tab .tab-icon { font-size: 13px; }
+
+    .settings-page-body { padding: 24px 20px; }
+  }
+
+  /* ================================================================
+     RESPONSIVE — Mobile (≤640px)
+  ================================================================ */
+  @media (max-width: 640px) {
+    :root { --sidebar-w: 100%; }
+
+    /* ── Nav ── */
+    #topnav {
+      height: auto;
+      flex-direction: column;
+      align-items: stretch;
+      padding: 0;
+      gap: 0;
+    }
+    .nav-brand {
+      padding: 10px 16px 8px;
+      border-bottom: 1px solid var(--border);
+      margin-right: 0;
+      font-size: 15px;
+    }
+    .nav-tabs {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0;
+      overflow-x: auto;
+    }
+    .nav-tab {
+      height: 44px;
+      padding: 0 8px;
+      font-size: 10px;
+      letter-spacing: 0.04em;
+      justify-content: center;
+      border-bottom: 2px solid transparent;
+      border-right: 1px solid var(--border);
+    }
+    .nav-tab:last-child { border-right: none; }
+    /* Settings-Tab volle Breite unten */
+    #tab-settings {
+      grid-column: 1 / -1;
+      border-top: 1px solid var(--border);
+      margin-left: 0 !important;
+    }
+
+    /* ── Page heights ── */
+    #page-diagram,
+    #page-spell,
+    #page-improve {
+      height: auto;
+      min-height: calc(100vh - 140px);
+    }
+
+    /* ── Diagram page: sidebar oben, chart darunter ── */
+    #page-diagram { flex-direction: column; overflow: auto; }
+    #sidebar {
+      width: 100%;
+      min-width: unset;
+      border-right: none;
+      border-bottom: 1px solid var(--border);
+      padding: 12px 14px;
+      gap: 12px;
+    }
+    #main-diagram {
+      padding: 16px 12px;
+      min-height: 340px;
+    }
+    .chart-card { padding: 20px 16px 16px; }
+    .chart-title { font-size: 15px; }
+
+    /* ── Tool header ── */
+    .tool-header {
+      height: auto;
+      padding: 12px 14px 10px;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .tool-header-left h1 { font-size: 16px; }
+    .tool-header-left p  { font-size: 11px; }
+    .tool-actions { width: 100%; justify-content: flex-end; }
+
+    /* ── Spell / Improve: stack vertically ── */
+    .tool-body {
+      grid-template-columns: 1fr;
+      grid-template-rows: auto auto;
+    }
+    .tool-panel-left {
+      border-right: none;
+      border-bottom: 1px solid var(--border);
+      min-height: 180px;
+      max-height: 40vh;
+    }
+    .tool-panel-right { min-height: 220px; }
+
+    .tool-textarea { font-size: 13px; padding: 14px 14px; }
+    .tool-output   { font-size: 13px; padding: 14px 14px; }
+    .panel-label   { padding: 8px 14px; font-size: 9px; }
+
+    .tool-details { max-height: 120px; }
+    .error-item   { padding: 7px 14px; font-size: 11px; }
+
+    /* ── Settings page ── */
+    #page-settings { height: auto; }
+    .settings-page-body { padding: 16px 12px; }
+    .settings-card { padding: 16px 14px; margin-bottom: 14px; }
+    .settings-card h3 { font-size: 14px; }
+    .provider-grid { grid-template-columns: 1fr 1fr; gap: 6px; }
+    .provider-btn { padding: 8px 8px; }
+    .provider-btn .prov-name { font-size: 12px; }
+    .provider-btn .prov-tag  { font-size: 9px; }
+
+    /* ── Modal ── */
+    .modal-box { padding: 22px 18px; }
+    .modal-box h2 { font-size: 17px; }
+    .provider-grid { gap: 6px; }
+
+    /* ── Score box in improve ── */
+    .score-box { padding: 14px 14px; gap: 14px; }
+    .score-circle { width: 56px; height: 56px; }
+    .score-number { font-size: 22px; }
+    .score-info h2 { font-size: 13px; }
+    .score-info p  { font-size: 11px; }
+    .improve-section { padding: 12px 14px; }
+    .feedback-item { font-size: 12px; }
+
+    /* ── Sidebar buttons ── */
+    .toggle-row { gap: 4px; }
+    .toggle-btn { font-size: 10px; padding: 6px 4px; }
+    .btn-download { font-size: 11px; padding: 8px; }
+  }
+
+  /* ================================================================
+     RESPONSIVE — Very small (≤380px)
+  ================================================================ */
+  @media (max-width: 380px) {
+    .nav-tabs { grid-template-columns: 1fr 1fr; }
+    .nav-tab  { font-size: 9px; padding: 0 4px; }
+    .provider-grid { grid-template-columns: 1fr; }
+  }
+
+  /* ===== SETTINGS MODAL ===== */
+  .modal-overlay {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.85);
+    backdrop-filter: blur(4px);
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .modal-box {
+    background: var(--dark);
+    border: 1px solid var(--border);
+    border-top: 3px solid var(--red);
+    padding: 32px 36px;
+    max-width: 480px;
+    width: 92%;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.6);
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+  .modal-box h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 20px;
+    color: #e8c8c8;
+    margin-bottom: 6px;
+  }
+  .modal-box .modal-sub {
+    font-size: 12px;
+    color: var(--muted);
+    margin-bottom: 24px;
+    line-height: 1.5;
+  }
+  .settings-section {
+    margin-bottom: 22px;
+  }
+  .settings-section-title {
+    font-size: 9px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 10px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid #2a2a2a;
+  }
+  .provider-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+  .provider-btn {
+    padding: 10px 12px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--muted);
+    border-radius: 4px;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 600;
+    text-align: left;
+    transition: all 0.15s;
+    line-height: 1.4;
+  }
+  .provider-btn .prov-name { display: block; color: var(--text); font-size: 13px; margin-bottom: 2px; }
+  .provider-btn .prov-tag  { font-size: 10px; color: var(--muted); }
+  .provider-btn.active { border-color: var(--red); background: rgba(204,0,0,0.12); }
+  .provider-btn.active .prov-tag { color: var(--red); }
+  .provider-btn:hover:not(.active) { border-color: #555; color: #ccc; }
+
+  .settings-field { margin-bottom: 10px; }
+  .settings-field label { display: block; font-size: 11px; color: var(--muted); margin-bottom: 5px; }
+  .settings-input {
+    width: 100%;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-family: 'Source Sans 3', monospace;
+    font-size: 12px;
+    padding: 9px 12px;
+    border-radius: 3px;
+    outline: none;
+    letter-spacing: 0.02em;
+  }
+  .settings-input:focus { border-color: var(--red); }
+  .settings-input::placeholder { color: #444; }
+
+  .settings-hint {
+    font-size: 11px;
+    color: #444;
+    margin-top: 6px;
+    line-height: 1.5;
+  }
+  .settings-hint a { color: #666; text-decoration: underline; }
+
+  .settings-error {
+    font-size: 11px;
+    color: var(--red);
+    min-height: 16px;
+    margin-bottom: 10px;
+  }
+  .settings-save {
+    width: 100%;
+    background: var(--red);
+    border: none;
+    color: #fff;
+    padding: 10px;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    border-radius: 3px;
+    cursor: pointer;
+    transition: opacity 0.2s;
+    margin-top: 4px;
+  }
+  .settings-save:hover { opacity: 0.85; }
+  .settings-footer {
+    font-size: 11px;
+    color: #3a3a3a;
+    margin-top: 12px;
+    text-align: center;
+  }
+
+  /* Settings page */
+  #page-settings {
+    flex-direction: column;
+    overflow-y: auto;
+  }
+  .settings-page-body {
+    flex: 1;
+    padding: 32px 40px;
+    max-width: 640px;
+    width: 100%;
+    margin: 0 auto;
+  }
+  .settings-card {
+    background: var(--dark);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 24px 28px;
+    margin-bottom: 20px;
+  }
+  .settings-card h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 16px;
+    color: #e8c8c8;
+    margin-bottom: 4px;
+  }
+  .settings-card .card-desc {
+    font-size: 12px;
+    color: var(--muted);
+    margin-bottom: 18px;
+    line-height: 1.5;
+  }
+  .status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 3px 9px;
+    border-radius: 10px;
+    letter-spacing: 0.04em;
+  }
+  .status-badge.ok  { background: rgba(34,197,94,0.15); color: var(--green); }
+  .status-badge.warn { background: rgba(245,197,24,0.15); color: var(--yellow); }
+  .status-badge.err  { background: rgba(204,0,0,0.15); color: var(--red); }
 </style>
 </head>
 <body>
 
+<!-- SETTINGS MODAL -->
+<div class="modal-overlay" id="settings-modal" style="display:none">
+  <div class="modal-box">
+    <h2 id="modal-title">⚙ KI-Einstellungen</h2>
+    <p class="modal-sub" id="modal-sub">Wählen Sie einen Anbieter und geben Sie Ihren API-Schlüssel ein.</p>
+    <div class="settings-section">
+      <div class="settings-section-title">Anbieter wählen</div>
+      <div class="provider-grid" id="modal-provider-grid">
+        <button class="provider-btn active" data-prov="groq" onclick="selectModalProvider('groq')">
+          <span class="prov-name">Groq</span>
+          <span class="prov-tag">✓ Kostenlos · Key nötig</span>
+        </button>
+        <button class="provider-btn" data-prov="openrouter" onclick="selectModalProvider('openrouter')">
+          <span class="prov-name">OpenRouter</span>
+          <span class="prov-tag">✓ Kostenlos · Key nötig</span>
+        </button>
+        <button class="provider-btn" data-prov="ollama" onclick="selectModalProvider('ollama')">
+          <span class="prov-name">Ollama</span>
+          <span class="prov-tag">Lokal · Kein Key</span>
+        </button>
+        <button class="provider-btn" data-prov="anthropic" onclick="selectModalProvider('anthropic')">
+          <span class="prov-name">Anthropic</span>
+          <span class="prov-tag">Kostenpflichtig · Key nötig</span>
+        </button>
+      </div>
+    </div>
+    <div class="settings-section" id="modal-key-section">
+      <div class="settings-section-title">API-Schlüssel</div>
+      <div class="settings-field">
+        <input class="settings-input" type="password" id="modal-apikey-input" placeholder="Schlüssel eingeben…" autocomplete="off" />
+      </div>
+      <div class="settings-hint" id="modal-key-hint"></div>
+    </div>
+    <div class="settings-section" id="modal-ollama-section" style="display:none">
+      <div class="settings-section-title">Ollama-Server</div>
+      <div class="settings-field">
+        <label>Server-URL</label>
+        <input class="settings-input" type="text" id="modal-ollama-url" placeholder="http://localhost:11434" />
+      </div>
+      <div class="settings-field">
+        <label>Modell</label>
+        <input class="settings-input" type="text" id="modal-ollama-model" placeholder="llama3" />
+      </div>
+    </div>
+    <div class="settings-error" id="modal-error"></div>
+    <button class="settings-save" onclick="saveModalSettings()">Speichern &amp; starten</button>
+    <div class="settings-footer">🔒 Daten bleiben im Browser — keine Übertragung</div>
+  </div>
+</div>
+
+<!-- TOP NAV -->
 <nav id="topnav">
-  <div class="nav-brand">Presse<em>Portal</em></div>
+  <div class="nav-brand">Presse<span>Portal</span></div>
   <div class="nav-tabs">
-    <button class="nav-tab" id="tab-diagram" onclick="showPage('diagram')"><span class="tab-dot"></span>Diagramm-Editor</button>
-    <button class="nav-tab active" id="tab-spell" onclick="showPage('spell')"><span class="tab-dot"></span>Rechtschreibprüfung</button>
-    <button class="nav-tab" id="tab-improve" onclick="showPage('improve')"><span class="tab-dot"></span>Verbesserungsvorschläge</button>
+    <button class="nav-tab" id="tab-diagram" onclick="showPage('diagram')">
+      <span class="tab-icon">📊</span> Diagramm-Editor
+    </button>
+    <button class="nav-tab active" id="tab-spell" onclick="showPage('spell')">
+      <span class="tab-icon">🔍</span> Rechtschreibprüfung
+    </button>
+    <button class="nav-tab" id="tab-improve" onclick="showPage('improve')">
+      <span class="tab-icon">✨</span> Verbesserungsvorschläge
+    </button>
+    <button class="nav-tab" id="tab-settings" onclick="showPage('settings')" style="margin-left:auto">
+      <span class="tab-icon">⚙</span> Einstellungen
+    </button>
   </div>
 </nav>
 
-<!-- ══ DIAGRAM ══════════════════════════════════ -->
+<!-- ============================================================ -->
+<!--  PAGE: DIAGRAM                                               -->
+<!-- ============================================================ -->
 <div class="page" id="page-diagram">
-  <div id="diag-sidebar">
-    <div class="sidebar-head"><h1>Diagramm-Editor</h1></div>
-    <div class="sidebar-body">
-      <div>
-        <div class="sec-label">Diagrammtyp</div>
-        <div class="toggle-row">
-          <button class="toggle-btn active" id="btn-saulen" onclick="setType('saulen')">Säulen</button>
-          <button class="toggle-btn" id="btn-balken" onclick="setType('balken')">Balken</button>
-          <button class="toggle-btn" id="btn-linien" onclick="setType('linien')">Linie</button>
-          <button class="toggle-btn" id="btn-kreis"  onclick="setType('kreis')">Kreis</button>
-        </div>
+  <div id="sidebar">
+    <h2>⚙ Diagramm-Editor</h2>
+    <div>
+      <div class="section-label">Diagrammtyp</div>
+      <div class="toggle-row">
+        <button class="toggle-btn active" id="btn-saulen" onclick="setType('saulen')">Säulen</button>
+        <button class="toggle-btn"        id="btn-balken" onclick="setType('balken')">Balken</button>
+        <button class="toggle-btn"        id="btn-linien" onclick="setType('linien')">Linie</button>
+        <button class="toggle-btn"        id="btn-kreis"  onclick="setType('kreis')">Kreis</button>
       </div>
-      <div><div class="sec-label">Titel</div><input type="text" id="inp-title" value="Monatliche Umsätze 2024" oninput="render()"></div>
-      <div><div class="sec-label">Untertitel</div><input type="text" id="inp-subtitle" value="Übersicht aller Geschäftsbereiche · Beispieldaten" oninput="render()"></div>
-      <div><div class="sec-label">Fußnote</div><input type="text" id="inp-footer" value="Angaben in absoluten Zahlen · Quelle: Musterverlag" oninput="render()"></div>
-      <div>
-        <div class="sec-label">Kategorien (Name | Wert)</div>
-        <div id="cat-list"></div>
-        <button class="btn-add" onclick="addCat()">+ Hinzufügen</button>
-      </div>
-      <button class="btn-dl" onclick="downloadPNG()">⬇ Als PNG herunterladen</button>
     </div>
+    <div>
+      <div class="section-label">Titel</div>
+      <input type="text" id="inp-title"    value="Monatliche Umsätze 2024" oninput="render()">
+    </div>
+    <div>
+      <div class="section-label">Untertitel</div>
+      <input type="text" id="inp-subtitle" value="Übersicht aller Geschäftsbereiche · Beispieldaten" oninput="render()">
+    </div>
+    <div>
+      <div class="section-label">Fußnote</div>
+      <input type="text" id="inp-footer"   value="Angaben in absoluten Zahlen · Quelle: Musterverlag" oninput="render()">
+    </div>
+    <div>
+      <div class="section-label">Kategorien (Name | Wert)</div>
+      <div id="cat-list"></div>
+      <button class="btn-add" onclick="addCat()">+ Hinzufügen</button>
+    </div>
+    <button class="btn-download" onclick="downloadPNG()">⬇ Als PNG herunterladen</button>
   </div>
-  <div id="diag-main">
+
+  <div id="main-diagram">
     <div class="chart-card" id="chart-card">
-      <div class="chart-header"><div class="chart-title" id="out-title"></div><div class="chart-subtitle" id="out-subtitle"></div></div>
-      <div id="saulen-chart"><div class="saulen-plot-wrap"><div class="y-axis-labels" id="saulen-ylabels"></div><div class="saulen-plot" id="saulen-plot"></div></div><div class="saulen-xlabels" id="saulen-xlabels"></div></div>
-      <div id="balken-chart"><svg id="balken-svg" viewBox="0 0 600 300" preserveAspectRatio="xMidYMid meet" style="width:100%;display:block;"></svg></div>
-      <div id="linien-chart"><svg id="linien-svg" viewBox="0 0 600 260" preserveAspectRatio="xMidYMid meet"></svg></div>
-      <div id="kreis-chart"><svg id="pie-svg" viewBox="0 0 380 280" preserveAspectRatio="xMidYMid meet" width="380" height="280"></svg><div class="pie-legend" id="pie-legend"></div></div>
+      <div class="chart-header">
+        <div class="chart-title"    id="out-title"></div>
+        <div class="chart-subtitle" id="out-subtitle"></div>
+      </div>
+
+      <div id="saulen-chart">
+        <div class="saulen-plot-wrap">
+          <div class="y-axis-labels" id="saulen-ylabels"></div>
+          <div class="saulen-plot" id="saulen-plot"></div>
+        </div>
+        <div class="saulen-xlabels" id="saulen-xlabels"></div>
+      </div>
+
+      <div id="balken-chart">
+        <svg id="balken-svg" viewBox="0 0 600 300" preserveAspectRatio="xMidYMid meet" style="width:100%;display:block;"></svg>
+      </div>
+
+      <div id="linien-chart">
+        <svg id="linien-svg" viewBox="0 0 600 260" preserveAspectRatio="xMidYMid meet"></svg>
+      </div>
+
+      <div id="kreis-chart">
+        <svg id="pie-svg" viewBox="0 0 380 280" preserveAspectRatio="xMidYMid meet" width="380" height="280"></svg>
+        <div class="pie-legend" id="pie-legend"></div>
+      </div>
+
       <div class="chart-footer" id="out-footer"></div>
     </div>
   </div>
 </div>
 
-<!-- ══ SPELL ════════════════════════════════════ -->
+<!-- ============================================================ -->
+<!--  PAGE: SPELL CHECK                                           -->
+<!-- ============================================================ -->
 <div class="page active" id="page-spell">
   <div class="tool-header">
-    <div class="hdr-left">
+    <div class="tool-header-left">
       <h1>Rechtschreibung &amp; Grammatik</h1>
-      <p>Prüft Rechtschreibung · Grammatik · Großschreibung · Satzstellung · Ausdruck · Wortfehler · Satzzeichen</p>
+      <p>KI-gestützte Prüfung — Fehler werden gelb hervorgehoben</p>
     </div>
-    <div class="hdr-right">
-      <button class="btn-s" onclick="clearSpell()">Leeren</button>
-      <button class="btn-p" id="spell-btn" onclick="runSpell()">Text prüfen</button>
+    <div class="tool-actions">
+      <button class="btn-secondary" onclick="clearSpell()">Leeren</button>
+      <button class="btn-primary" id="spell-btn" onclick="runSpellCheck()">Jetzt prüfen</button>
     </div>
   </div>
+
   <div class="tool-body">
-    <div class="panel-left">
-      <div class="panel-bar">
+    <div class="tool-panel-left">
+      <div class="panel-label">
         <span>Ihr Text</span>
-        <span id="spell-cc" style="text-transform:none;letter-spacing:0;font-weight:400;color:var(--muted)">0 Zeichen</span>
+        <span id="spell-char-count" style="color:#555">0 Zeichen</span>
       </div>
-      <textarea class="tarea" id="spell-input"
-        placeholder="Pressemitteilung oder Discord-Ankündigung hier eingeben…"
-        oninput="document.getElementById('spell-cc').textContent=this.value.length+' Zeichen'"></textarea>
+      <textarea class="tool-textarea" id="spell-input"
+        placeholder="Geben Sie hier Ihre Discord-Pressemitteilung oder RP-Ankündigung ein…"
+        oninput="updateCharCount()"></textarea>
     </div>
-    <div class="panel-right">
-      <div class="panel-bar">
-        <span>Prüfungsergebnis</span>
-        <span id="spell-badge" style="display:none;text-transform:none;letter-spacing:0;font-size:9.5px;font-weight:700;"></span>
+
+    <div class="tool-panel-right">
+      <div class="panel-label">
+        <span>LanguageTool-Überprüfung</span>
+        <span class="error-count" id="spell-error-count" style="display:none"></span>
       </div>
-      <div id="spell-legend" class="err-legend" style="display:none"></div>
-      <div class="output-area" id="spell-out">
-        <div class="placeholder"><div class="placeholder-icon">🔍</div><p>Text eingeben und auf „Text prüfen" klicken. Fehler werden farbig nach Typ markiert.</p></div>
+      <div class="tool-output" id="spell-output">
+        <div class="tool-placeholder">
+          <div class="icon">🔍</div>
+          <p>Text eingeben und auf „Jetzt prüfen" klicken.<br>Fehler werden hier gelb markiert.</p>
+        </div>
       </div>
-      <div id="spell-errlist" class="errors-strip" style="display:none">
-        <div class="errors-strip-head">Gefundene Fehler</div>
-        <div id="spell-erritems"></div>
+      <div class="tool-details" id="spell-errors-list" style="display:none">
+        <h3>Gefundene Fehler</h3>
+        <div id="spell-errors-items"></div>
       </div>
     </div>
   </div>
 </div>
 
-<!-- ══ IMPROVE ══════════════════════════════════ -->
+<!-- ============================================================ -->
+<!--  PAGE: IMPROVE                                               -->
+<!-- ============================================================ -->
 <div class="page" id="page-improve">
   <div class="tool-header">
-    <div class="hdr-left">
+    <div class="tool-header-left">
       <h1>Verbesserungsvorschläge</h1>
-      <p>KI bewertet Professionalität, Klarheit, Struktur und Wirkung Ihres Textes</p>
+      <p>KI bewertet Ihren Text und gibt detailliertes Feedback (Skala 1–10)</p>
     </div>
-    <div class="hdr-right">
-      <button class="btn-s" onclick="clearImprove()">Leeren</button>
-      <button class="btn-p" id="improve-btn" onclick="runImprove()">Text bewerten</button>
+    <div class="tool-actions">
+      <button class="btn-secondary" onclick="clearImprove()">Leeren</button>
+      <button class="btn-primary" id="improve-btn" onclick="runImprove()">Text bewerten</button>
     </div>
   </div>
+
   <div class="tool-body">
-    <div class="panel-left">
-      <div class="panel-bar">
+    <div class="tool-panel-left">
+      <div class="panel-label">
         <span>Ihr Text</span>
-        <span id="improve-cc" style="text-transform:none;letter-spacing:0;font-weight:400;color:var(--muted)">0 Zeichen</span>
+        <span id="improve-char-count" style="color:#555">0 Zeichen</span>
       </div>
-      <textarea class="tarea" id="improve-input"
-        placeholder="Pressemitteilung oder Discord-Ankündigung hier eingeben…"
-        oninput="document.getElementById('improve-cc').textContent=this.value.length+' Zeichen'"></textarea>
+      <textarea class="tool-textarea" id="improve-input"
+        placeholder="Geben Sie hier Ihre Discord-Pressemitteilung oder RP-Ankündigung ein…"
+        oninput="updateImproveCharCount()"></textarea>
     </div>
-    <div class="panel-right">
-      <div class="panel-bar">
+
+    <div class="tool-panel-right" style="overflow:hidden;">
+      <div class="panel-label">
         <span>KI-Bewertung</span>
-        <span id="improve-badge" style="display:none;text-transform:none;letter-spacing:0;font-weight:700;font-size:10px;"></span>
+        <span id="improve-score-badge" style="display:none"></span>
       </div>
-      <div class="output-area" id="improve-out">
-        <div class="placeholder"><div class="placeholder-icon">✨</div><p>Text eingeben und auf „Text bewerten" klicken, um eine KI-Bewertung zu erhalten.</p></div>
-      </div>
-      <div id="improve-details" class="errors-strip" style="display:none">
-        <div class="errors-strip-head">Detailliertes Feedback</div>
-        <div id="improve-items"></div>
+      <div id="improve-result" style="flex:1; overflow-y:auto; background:var(--mid); display:flex; flex-direction:column; min-height:0; -webkit-overflow-scrolling:touch;">
+        <div class="tool-placeholder" style="flex:1">
+          <div class="icon">✨</div>
+          <p>Text eingeben und auf „Text bewerten" klicken, um eine KI-Bewertung zu erhalten.</p>
+        </div>
       </div>
     </div>
   </div>
 </div>
 
-<div id="statusbar">
-  <span class="s-dot" id="api-dot"></span>
-  <span id="api-status">Bereit</span>
+<!-- ============================================================ -->
+<!--  PAGE: SETTINGS                                              -->
+<!-- ============================================================ -->
+<div class="page" id="page-settings">
+  <div class="tool-header">
+    <div class="tool-header-left">
+      <h1>Einstellungen</h1>
+      <p>KI-Anbieter und API-Schlüssel konfigurieren</p>
+    </div>
+  </div>
+  <div class="settings-page-body">
+
+    <!-- Status Card -->
+    <div class="settings-card">
+      <h3>Status</h3>
+      <p class="card-desc">Aktiv genutzte Dienste auf einen Blick</p>
+      <div style="display:flex; flex-direction:column; gap:10px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; font-size:13px;">
+          <span style="color:#aaa">Rechtschreibprüfung</span>
+          <span class="status-badge" id="spell-status-badge">– Nicht konfiguriert</span>
+        </div>
+        <div style="display:flex; justify-content:space-between; align-items:center; font-size:13px;">
+          <span style="color:#aaa">Verbesserungsvorschläge</span>
+          <span class="status-badge" id="improve-status-badge">– Nicht konfiguriert</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Spell Provider Card -->
+    <div class="settings-card">
+      <h3>Rechtschreibprüfung</h3>
+      <p class="card-desc">Anbieter und Zugangsdaten für die Textprüfung festlegen.</p>
+      <div class="provider-grid" id="spell-provider-grid">
+        <button class="provider-btn active" data-prov="groq" onclick="selectSpellProvider('groq')">
+          <span class="prov-name">Groq</span>
+          <span class="prov-tag">✓ Kostenlos · Key nötig</span>
+        </button>
+        <button class="provider-btn" data-prov="openrouter" onclick="selectSpellProvider('openrouter')">
+          <span class="prov-name">OpenRouter</span>
+          <span class="prov-tag">✓ Kostenlos · Key nötig</span>
+        </button>
+        <button class="provider-btn" data-prov="ollama" onclick="selectSpellProvider('ollama')">
+          <span class="prov-name">Ollama</span>
+          <span class="prov-tag">Lokal · Kein Key</span>
+        </button>
+        <button class="provider-btn" data-prov="anthropic" onclick="selectSpellProvider('anthropic')">
+          <span class="prov-name">Anthropic</span>
+          <span class="prov-tag">Kostenpflichtig · Key nötig</span>
+        </button>
+      </div>
+      <div id="spell-page-key-section" class="settings-field">
+        <label>API-Schlüssel</label>
+        <input class="settings-input" type="password" id="spell-page-apikey-input" placeholder="Schlüssel eingeben…" autocomplete="off" />
+        <div class="settings-hint" id="spell-page-key-hint"></div>
+      </div>
+      <div id="spell-page-ollama-section" style="display:none">
+        <div class="settings-field">
+          <label>Server-URL</label>
+          <input class="settings-input" type="text" id="spell-page-ollama-url" placeholder="http://localhost:11434" />
+        </div>
+        <div class="settings-field">
+          <label>Modell</label>
+          <input class="settings-input" type="text" id="spell-page-ollama-model" placeholder="llama3" />
+        </div>
+      </div>
+      <div class="settings-error" id="spell-page-error"></div>
+      <button class="settings-save" id="spell-save-btn" onclick="saveSpellPageSettings()">Speichern</button>
+    </div>
+
+    <!-- Improve Provider Card -->
+    <div class="settings-card">
+      <h3>Verbesserungsvorschläge</h3>
+      <p class="card-desc">Anbieter und Zugangsdaten für die Textbewertung festlegen.</p>
+      <div class="provider-grid" id="page-provider-grid">
+        <button class="provider-btn active" data-prov="groq" onclick="selectPageProvider('groq')">
+          <span class="prov-name">Groq</span>
+          <span class="prov-tag">✓ Kostenlos · Key nötig</span>
+        </button>
+        <button class="provider-btn" data-prov="openrouter" onclick="selectPageProvider('openrouter')">
+          <span class="prov-name">OpenRouter</span>
+          <span class="prov-tag">✓ Kostenlos · Key nötig</span>
+        </button>
+        <button class="provider-btn" data-prov="ollama" onclick="selectPageProvider('ollama')">
+          <span class="prov-name">Ollama</span>
+          <span class="prov-tag">Lokal · Kein Key</span>
+        </button>
+        <button class="provider-btn" data-prov="anthropic" onclick="selectPageProvider('anthropic')">
+          <span class="prov-name">Anthropic</span>
+          <span class="prov-tag">Kostenpflichtig · Key nötig</span>
+        </button>
+      </div>
+
+      <div id="page-key-section" class="settings-field">
+        <label id="page-key-label">API-Schlüssel</label>
+        <input class="settings-input" type="password" id="page-apikey-input" placeholder="Schlüssel eingeben…" autocomplete="off" />
+        <div class="settings-hint" id="page-key-hint"></div>
+      </div>
+
+      <div id="page-ollama-section" style="display:none">
+        <div class="settings-field">
+          <label>Server-URL</label>
+          <input class="settings-input" type="text" id="page-ollama-url" placeholder="http://localhost:11434" />
+        </div>
+        <div class="settings-field">
+          <label>Modell</label>
+          <input class="settings-input" type="text" id="page-ollama-model" placeholder="llama3" />
+        </div>
+      </div>
+
+      <button class="settings-save" id="improve-save-btn" onclick="savePageSettings()">Speichern</button>
+    </div>
+
+    <!-- Info Card -->
+    <div class="settings-card">
+      <h3>API-Schlüssel erhalten</h3>
+      <p class="card-desc">Übersicht der verfügbaren Anbieter</p>
+      <div style="display:flex; flex-direction:column; gap:12px; font-size:13px; color:#aaa; line-height:1.6">
+        <div><strong style="color:var(--text)">Groq</strong> — <a href="https://console.groq.com" target="_blank" style="color:#666">console.groq.com</a> → „Create API Key". Kostenlos mit täglichem Limit.</div>
+        <div><strong style="color:var(--text)">OpenRouter</strong> — <a href="https://openrouter.ai/keys" target="_blank" style="color:#666">openrouter.ai/keys</a> → Key erstellen. Viele kostenlose Modelle verfügbar.</div>
+        <div><strong style="color:var(--text)">Ollama</strong> — <a href="https://ollama.com" target="_blank" style="color:#666">ollama.com</a>. Lokal, kein Key, kein Datenschutzproblem.</div>
+        <div><strong style="color:var(--text)">Anthropic</strong> — <a href="https://console.anthropic.com" target="_blank" style="color:#666">console.anthropic.com</a>. Kostenpflichtig (pay-per-use).</div>
+      </div>
+    </div>
+
+  </div>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script>
-'use strict';
 
-// ── API KEY (injected by Render build) ───────────────
-const _K = '__API_KEY__';
+// ================================================================
+// SETTINGS & PROVIDER MANAGEMENT
+// ================================================================
+const PROVIDERS = {
+  groq: {
+    name: 'Groq',
+    url: 'https://api.groq.com/openai/v1/chat/completions',
+    model: 'llama-3.3-70b-versatile',
+    hint: 'Key erhalten: <a href="https://console.groq.com" target="_blank">console.groq.com</a>',
+    placeholder: 'gsk_…',
+    needsKey: true,
+    validate: v => v.length > 10
+  },
+  openrouter: {
+    name: 'OpenRouter',
+    url: 'https://openrouter.ai/api/v1/chat/completions',
+    model: 'meta-llama/llama-3.1-8b-instruct:free',
+    hint: 'Key erhalten: <a href="https://openrouter.ai/keys" target="_blank">openrouter.ai/keys</a>',
+    placeholder: 'sk-or-…',
+    needsKey: true,
+    validate: v => v.length > 10
+  },
+  ollama: {
+    name: 'Ollama',
+    url: null,
+    model: 'llama3',
+    hint: 'Ollama lokal installieren: <a href="https://ollama.com" target="_blank">ollama.com</a>',
+    placeholder: '',
+    needsKey: false,
+    validate: () => true
+  },
+  anthropic: {
+    name: 'Anthropic',
+    url: 'https://api.anthropic.com/v1/messages',
+    model: 'claude-sonnet-4-20250514',
+    hint: 'Key erhalten: <a href="https://console.anthropic.com" target="_blank">console.anthropic.com</a>',
+    placeholder: 'sk-ant-…',
+    needsKey: true,
+    validate: v => v.startsWith('sk-ant-') && v.length > 20
+  }
+};
 
-// ── API CALL — Ollama Cloud ───────────────────────────
-async function apiCall(system, text, maxTokens) {
-  setStatus('loading');
-  try {
-    const r = await fetch('https://ollama.com/v1/chat/completions', {
+// Two independent setting blocks: spell + improve
+let _settings = JSON.parse(sessionStorage.getItem('pp_settings2') || 'null') || {
+  improve: { provider: 'groq', apiKey: '', ollamaUrl: 'http://localhost:11434', ollamaModel: 'llama3' },
+  spell:   { provider: 'groq', apiKey: '', ollamaUrl: 'http://localhost:11434', ollamaModel: 'llama3' }
+};
+
+function saveSettings() {
+  sessionStorage.setItem('pp_settings2', JSON.stringify(_settings));
+  updateStatusBadges();
+}
+
+function updateStatusBadges() {
+  ['spell', 'improve'].forEach(mod => {
+    const badge = document.getElementById(mod + '-status-badge');
+    if (!badge) return;
+    const cfg = _settings[mod];
+    const prov = PROVIDERS[cfg.provider];
+    const hasKey = !prov.needsKey || (cfg.apiKey && prov.validate(cfg.apiKey));
+    if (hasKey) {
+      badge.className = 'status-badge ok';
+      badge.textContent = '✓ ' + prov.name;
+    } else {
+      badge.className = 'status-badge warn';
+      badge.textContent = '⚠ Key fehlt';
+    }
+  });
+}
+
+// ---- Modal (context-aware: 'spell' or 'improve') ----
+let _modalContext = 'improve';
+
+function openSettingsModal(context) {
+  _modalContext = context;
+  const labels = {
+    spell:   { title: '🔍 Rechtschreibprüfung — Einstellungen', sub: 'Wählen Sie einen KI-Anbieter für die Rechtschreibprüfung.' },
+    improve: { title: '✨ Verbesserungsvorschläge — Einstellungen', sub: 'Wählen Sie einen KI-Anbieter für die Textbewertung.' }
+  };
+  document.getElementById('modal-title').textContent = labels[context].title;
+  document.getElementById('modal-sub').textContent   = labels[context].sub;
+  const cfg = _settings[context];
+  document.querySelectorAll('#modal-provider-grid .provider-btn').forEach(b =>
+    b.classList.toggle('active', b.dataset.prov === cfg.provider));
+  selectModalProvider(cfg.provider);
+  if (cfg.apiKey) document.getElementById('modal-apikey-input').value = cfg.apiKey;
+  if (cfg.ollamaUrl) document.getElementById('modal-ollama-url').value = cfg.ollamaUrl;
+  if (cfg.ollamaModel) document.getElementById('modal-ollama-model').value = cfg.ollamaModel;
+  document.getElementById('modal-error').textContent = '';
+  document.getElementById('settings-modal').style.display = 'flex';
+}
+
+function selectModalProvider(p) {
+  _settings[_modalContext].provider = p;
+  document.querySelectorAll('#modal-provider-grid .provider-btn').forEach(b =>
+    b.classList.toggle('active', b.dataset.prov === p));
+  const prov = PROVIDERS[p];
+  document.getElementById('modal-key-section').style.display = prov.needsKey ? 'block' : 'none';
+  document.getElementById('modal-ollama-section').style.display = p === 'ollama' ? 'block' : 'none';
+  document.getElementById('modal-key-hint').innerHTML = prov.hint;
+  document.getElementById('modal-apikey-input').placeholder = prov.placeholder;
+}
+
+function saveModalSettings() {
+  const ctx = _modalContext;
+  const p = _settings[ctx].provider;
+  const prov = PROVIDERS[p];
+  const key = document.getElementById('modal-apikey-input').value.trim();
+  const err = document.getElementById('modal-error');
+  if (prov.needsKey && !prov.validate(key)) {
+    err.textContent = 'Ungültiger oder fehlender API-Schlüssel.';
+    return;
+  }
+  err.textContent = '';
+  _settings[ctx].apiKey     = key;
+  _settings[ctx].ollamaUrl  = document.getElementById('modal-ollama-url').value.trim() || 'http://localhost:11434';
+  _settings[ctx].ollamaModel= document.getElementById('modal-ollama-model').value.trim() || 'llama3';
+  saveSettings();
+  syncAllPageFields();
+  document.getElementById('settings-modal').style.display = 'none';
+}
+
+// ---- Settings page — Spell ----
+function selectSpellProvider(p) {
+  _settings.spell.provider = p;
+  document.querySelectorAll('#spell-provider-grid .provider-btn').forEach(b =>
+    b.classList.toggle('active', b.dataset.prov === p));
+  const prov = PROVIDERS[p];
+  document.getElementById('spell-page-key-section').style.display = prov.needsKey ? 'block' : 'none';
+  document.getElementById('spell-page-ollama-section').style.display = p === 'ollama' ? 'block' : 'none';
+  document.getElementById('spell-page-key-hint').innerHTML = prov.hint;
+  document.getElementById('spell-page-apikey-input').placeholder = prov.placeholder;
+}
+
+function saveSpellPageSettings() {
+  const p = _settings.spell.provider;
+  const prov = PROVIDERS[p];
+  const key = document.getElementById('spell-page-apikey-input').value.trim();
+  const err = document.getElementById('spell-page-error');
+  if (prov.needsKey && !prov.validate(key)) {
+    err.textContent = 'Ungültiger oder fehlender API-Schlüssel.';
+    return;
+  }
+  err.textContent = '';
+  _settings.spell.apiKey     = key;
+  _settings.spell.ollamaUrl  = document.getElementById('spell-page-ollama-url').value.trim() || 'http://localhost:11434';
+  _settings.spell.ollamaModel= document.getElementById('spell-page-ollama-model').value.trim() || 'llama3';
+  saveSettings();
+  const btn = document.getElementById('spell-save-btn');
+  btn.textContent = '✓ Gespeichert';
+  setTimeout(() => btn.textContent = 'Einstellungen speichern', 2000);
+}
+
+// ---- Settings page — Improve ----
+function selectPageProvider(p) {
+  _settings.improve.provider = p;
+  document.querySelectorAll('#page-provider-grid .provider-btn').forEach(b =>
+    b.classList.toggle('active', b.dataset.prov === p));
+  const prov = PROVIDERS[p];
+  document.getElementById('page-key-section').style.display = prov.needsKey ? 'block' : 'none';
+  document.getElementById('page-ollama-section').style.display = p === 'ollama' ? 'block' : 'none';
+  document.getElementById('page-key-hint').innerHTML = prov.hint;
+  document.getElementById('page-apikey-input').placeholder = prov.placeholder;
+}
+
+function savePageSettings() {
+  const p = _settings.improve.provider;
+  const prov = PROVIDERS[p];
+  const key = document.getElementById('page-apikey-input').value.trim();
+  const err = document.getElementById('page-settings-error');
+  if (prov.needsKey && !prov.validate(key)) {
+    err.textContent = 'Ungültiger oder fehlender API-Schlüssel.';
+    return;
+  }
+  err.textContent = '';
+  _settings.improve.apiKey     = key;
+  _settings.improve.ollamaUrl  = document.getElementById('page-ollama-url').value.trim() || 'http://localhost:11434';
+  _settings.improve.ollamaModel= document.getElementById('page-ollama-model').value.trim() || 'llama3';
+  saveSettings();
+  const btn = document.getElementById('improve-save-btn');
+  btn.textContent = '✓ Gespeichert';
+  setTimeout(() => btn.textContent = 'Einstellungen speichern', 2000);
+}
+
+function syncAllPageFields() {
+  // Spell
+  const sc = _settings.spell;
+  document.querySelectorAll('#spell-provider-grid .provider-btn').forEach(b =>
+    b.classList.toggle('active', b.dataset.prov === sc.provider));
+  const sp = PROVIDERS[sc.provider];
+  document.getElementById('spell-page-key-section').style.display = sp.needsKey ? 'block' : 'none';
+  document.getElementById('spell-page-ollama-section').style.display = sc.provider === 'ollama' ? 'block' : 'none';
+  document.getElementById('spell-page-key-hint').innerHTML = sp.hint;
+  document.getElementById('spell-page-apikey-input').placeholder = sp.placeholder;
+  if (sc.apiKey) document.getElementById('spell-page-apikey-input').value = sc.apiKey;
+  document.getElementById('spell-page-ollama-url').value = sc.ollamaUrl;
+  document.getElementById('spell-page-ollama-model').value = sc.ollamaModel;
+
+  // Improve
+  const ic = _settings.improve;
+  document.querySelectorAll('#page-provider-grid .provider-btn').forEach(b =>
+    b.classList.toggle('active', b.dataset.prov === ic.provider));
+  const ip = PROVIDERS[ic.provider];
+  document.getElementById('page-key-section').style.display = ip.needsKey ? 'block' : 'none';
+  document.getElementById('page-ollama-section').style.display = ic.provider === 'ollama' ? 'block' : 'none';
+  document.getElementById('page-key-hint').innerHTML = ip.hint;
+  document.getElementById('page-apikey-input').placeholder = ip.placeholder;
+  if (ic.apiKey) document.getElementById('page-apikey-input').value = ic.apiKey;
+  document.getElementById('page-ollama-url').value = ic.ollamaUrl;
+  document.getElementById('page-ollama-model').value = ic.ollamaModel;
+}
+
+function getOrPrompt(context) {
+  const cfg = _settings[context];
+  const prov = PROVIDERS[cfg.provider];
+  const hasKey = !prov.needsKey || (cfg.apiKey && prov.validate(cfg.apiKey));
+  if (!hasKey) {
+    openSettingsModal(context);
+    return null;
+  }
+  return cfg;
+}
+
+// ---- Universal AI call (context: 'spell' | 'improve') ----
+async function callAI(systemPrompt, userText, context) {
+  const cfg = getOrPrompt(context);
+  if (!cfg) return null;
+
+  const p = cfg.provider;
+  const prov = PROVIDERS[p];
+
+  if (p === 'anthropic') {
+    const resp = await fetch(prov.url, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': 'Bearer ' + _K
+        'x-api-key': cfg.apiKey,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true'
       },
       body: JSON.stringify({
-        model: 'gpt-oss:120b',
-        max_tokens: maxTokens || 1200,
+        model: prov.model, max_tokens: 1500,
+        system: systemPrompt,
+        messages: [{ role: 'user', content: userText }]
+      })
+    });
+    const data = await resp.json();
+    if (data.error) throw new Error(data.error.message);
+    return data.content.map(i => i.text || '').join('');
+
+  } else if (p === 'ollama') {
+    const url = (cfg.ollamaUrl || 'http://localhost:11434').replace(/\/$/, '') + '/api/chat';
+    const resp = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: cfg.ollamaModel || 'llama3',
+        stream: false,
         messages: [
-          { role: 'system', content: system },
-          { role: 'user',   content: text   }
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: userText }
         ]
       })
     });
-    const d = await r.json();
-    if (!r.ok) throw new Error(d?.error?.message || ('Fehler ' + r.status));
-    const msg = d?.choices?.[0]?.message?.content;
-    if (!msg) throw new Error('Keine Antwort vom Modell erhalten.');
-    setStatus('ok');
-    return msg;
-  } catch(e) { setStatus('err'); throw e; }
+    const data = await resp.json();
+    if (data.error) throw new Error(data.error);
+    return data.message?.content || '';
+
+  } else {
+    const resp = await fetch(prov.url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + cfg.apiKey
+      },
+      body: JSON.stringify({
+        model: prov.model, max_tokens: 1500,
+        messages: [
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: userText }
+        ]
+      })
+    });
+    const data = await resp.json();
+    if (data.error) throw new Error(data.error.message);
+    return data.choices?.[0]?.message?.content || '';
+  }
 }
 
-function setStatus(s) {
-  const dot = document.getElementById('api-dot');
-  const txt = document.getElementById('api-status');
-  if (s==='loading') { dot.className='s-dot'; txt.textContent='Anfrage läuft…'; }
-  else if (s==='ok') { dot.className='s-dot'; txt.textContent='Bereit'; }
-  else { dot.className='s-dot err'; txt.textContent='Fehler'; }
+// Allow Enter key in modal API key input
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('modal-apikey-input').addEventListener('keydown', e => {
+    if (e.key === 'Enter') saveModalSettings();
+  });
+  syncAllPageFields();
+  updateStatusBadges();
+});
+
+// ================================================================
+// NAV
+// ================================================================
+function showPage(page) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('page-' + page).classList.add('active');
+  document.getElementById('tab-' + page).classList.add('active');
 }
 
-// ── NAV ───────────────────────────────────────────────
-function showPage(p) {
-  document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));
-  document.querySelectorAll('.nav-tab').forEach(x=>x.classList.remove('active'));
-  document.getElementById('page-'+p).classList.add('active');
-  document.getElementById('tab-'+p).classList.add('active');
-}
+// ================================================================
+// DIAGRAM EDITOR (original logic)
+// ================================================================
+const PIE_COLORS = ['#cc0000','#e63333','#b30000','#ff4444','#992200','#ff6666','#771100','#ffaaaa','#dd1100','#ff8888','#550000','#ff9999'];
+let chartType = 'saulen';
+let categories = [
+  { name: 'Januar',   val: 42 },
+  { name: 'Februar',  val: 35 },
+  { name: 'März',     val: 58 },
+  { name: 'April',    val: 47 },
+  { name: 'Mai',      val: 63 },
+  { name: 'Juni',     val: 55 },
+];
 
-// ── DIAGRAM ───────────────────────────────────────────
-const PIE_COLORS=['#cc0000','#e63333','#b30000','#ff4444','#992200','#ff6666','#771100','#ffaaaa','#dd1100','#ff9999'];
-let chartType='saulen';
-let categories=[{name:'Januar',val:42},{name:'Februar',val:35},{name:'März',val:58},{name:'April',val:47},{name:'Mai',val:63},{name:'Juni',val:55}];
-
-function buildSidebar(){
-  const list=document.getElementById('cat-list');list.innerHTML='';
-  categories.forEach((c,i)=>{
-    const row=document.createElement('div');row.className='cat-row';
-    row.innerHTML=`<input class="cn" type="text" value="${c.name}" oninput="updCat(${i},'name',this.value)"><input class="cv" type="number" value="${c.val}" oninput="updCat(${i},'val',+this.value)" min="0"><button class="btn-del" onclick="delCat(${i})">×</button>`;
+function buildSidebar() {
+  const list = document.getElementById('cat-list');
+  list.innerHTML = '';
+  categories.forEach((c, i) => {
+    const row = document.createElement('div');
+    row.className = 'cat-row';
+    row.innerHTML = `
+      <input class="cat-name" type="text"   value="${c.name}" oninput="updCat(${i},'name',this.value)">
+      <input class="cat-val"  type="number" value="${c.val}"  oninput="updCat(${i},'val',+this.value)" min="0">
+      <button class="btn-del" onclick="delCat(${i})">×</button>`;
     list.appendChild(row);
   });
 }
-function updCat(i,k,v){categories[i][k]=v;render();}
-function delCat(i){categories.splice(i,1);buildSidebar();render();}
-function addCat(){categories.push({name:'Neu',val:10});buildSidebar();render();}
-function setType(t){
-  chartType=t;
-  ['saulen','balken','linien','kreis'].forEach(x=>{
-    document.getElementById('btn-'+x).classList.toggle('active',x===t);
-    document.getElementById(x+'-chart').style.display=x===t?'block':'none';
+
+function updCat(i,k,v) { categories[i][k]=v; render(); }
+function delCat(i)      { categories.splice(i,1); buildSidebar(); render(); }
+function addCat()       { categories.push({name:'Neu',val:10}); buildSidebar(); render(); }
+
+function setType(t) {
+  chartType = t;
+  ['saulen','balken','linien','kreis'].forEach(x => {
+    document.getElementById('btn-'+x).classList.toggle('active', x===t);
+    document.getElementById(x+'-chart').style.display = x===t ? 'block' : 'none';
   });
   render();
 }
-function niceScale(m){const s=[1,2,5,10,20,25,50,100,200,500,1000];const st=s.find(x=>Math.ceil(m/x)<=5)||s[s.length-1];const sc=Math.ceil(m/st)*st;return{scaleMax:sc,step:st,tickCount:sc/st};}
-function render(){
-  document.getElementById('out-title').textContent=document.getElementById('inp-title').value;
-  document.getElementById('out-subtitle').textContent=document.getElementById('inp-subtitle').value;
-  document.getElementById('out-footer').textContent=document.getElementById('inp-footer').value;
-  const sorted=[...categories].sort((a,b)=>b.val-a.val),ordered=[...categories];
-  const maxVal=Math.max(...categories.map(c=>c.val),1);
-  const{scaleMax,step,tickCount}=niceScale(maxVal);
-  if(chartType==='saulen')renderSaulen(sorted,scaleMax,step,tickCount);
-  if(chartType==='balken')renderBalken(sorted,scaleMax);
-  if(chartType==='linien')renderLinien(ordered,scaleMax,step,tickCount);
-  if(chartType==='kreis')renderKreis(sorted);
+
+function niceScale(maxVal) {
+  const steps=[1,2,5,10,20,25,50,100,200,500,1000];
+  const targetTicks=5;
+  let step=steps.find(s=>Math.ceil(maxVal/s)<=targetTicks)||steps[steps.length-1];
+  const scaleMax=Math.ceil(maxVal/step)*step;
+  const tickCount=scaleMax/step;
+  return {scaleMax,step,tickCount};
 }
-function renderSaulen(s,sm,step,tc){
-  const plot=document.getElementById('saulen-plot'),xl=document.getElementById('saulen-xlabels'),yl=document.getElementById('saulen-ylabels');
-  let gl='';for(let t=0;t<=tc;t++){const p=(t/tc)*100;gl+=`<div class="saulen-gl${t===0?' zero':''}" style="bottom:${p}%"></div>`;}
-  let bars='';s.forEach(c=>{const p=(c.val/sm)*100;bars+=`<div class="saulen-group"><div class="saulen-rect" style="height:${p}%"><span class="saulen-vl">${c.val}</span></div></div>`;});
-  plot.innerHTML=gl+bars;xl.innerHTML=s.map(c=>`<div class="saulen-xlabel">${c.name}</div>`).join('');
-  let y='';for(let t=0;t<=tc;t++){const p=(t/tc)*100;y+=`<span class="y-lbl" style="bottom:${p}%">${t*step}</span>`;}yl.innerHTML=y;
+
+function render() {
+  document.getElementById('out-title').textContent    = document.getElementById('inp-title').value;
+  document.getElementById('out-subtitle').textContent = document.getElementById('inp-subtitle').value;
+  document.getElementById('out-footer').textContent   = document.getElementById('inp-footer').value;
+  const sorted  = [...categories].sort((a,b)=>b.val-a.val);
+  const ordered = [...categories];
+  const maxVal  = Math.max(...categories.map(c=>c.val),1);
+  const {scaleMax,step,tickCount} = niceScale(maxVal);
+  if (chartType==='saulen') renderSaulen(sorted,scaleMax,step,tickCount);
+  if (chartType==='balken') renderBalken(sorted,scaleMax);
+  if (chartType==='linien') renderLinien(ordered,scaleMax,step,tickCount);
+  if (chartType==='kreis')  renderKreis(sorted);
 }
-function renderBalken(s,sm){
-  const svg=document.getElementById('balken-svg'),{step,tickCount:tc}=niceScale(sm),n=s.length,W=600,H=Math.max(n*36+60,200);
+
+function renderSaulen(sorted,scaleMax,step,tickCount) {
+  const plot=document.getElementById('saulen-plot');
+  const xlabels=document.getElementById('saulen-xlabels');
+  const ylabels=document.getElementById('saulen-ylabels');
+  let gl='';
+  for(let t=0;t<=tickCount;t++){const pct=(t/tickCount)*100;gl+=`<div class="saulen-gl${t===0?' zero':''}" style="bottom:${pct}%;"></div>`;}
+  let bars='';
+  sorted.forEach(c=>{
+    const pct=(c.val/scaleMax)*100;
+    bars+=`<div class="saulen-group"><div class="saulen-rect" style="height:${pct}%"><span class="saulen-vl">${c.val}</span></div></div>`;
+  });
+  plot.innerHTML=gl+bars;
+  xlabels.innerHTML=sorted.map(c=>`<div class="saulen-xlabel">${c.name}</div>`).join('');
+  let yl='';
+  for(let t=0;t<=tickCount;t++){const pct=(t/tickCount)*100;yl+=`<span class="y-lbl" style="bottom:${pct}%">${t*step}</span>`;}
+  ylabels.innerHTML=yl;
+}
+
+function renderBalken(sorted,scaleMax) {
+  const svg=document.getElementById('balken-svg');
+  const {step,tickCount}=niceScale(scaleMax);
+  const n=sorted.length;
+  const W=600,H=Math.max(n*36+60,200);
   svg.setAttribute('viewBox',`0 0 ${W} ${H}`);
-  const P={t:10,r:30,b:30,l:90},pw=W-P.l-P.r,ph=H-P.t-P.b,th=ph/n,bh=Math.min(th*.55,28);
-  const xp=v=>P.l+(v/sm)*pw,ym=i=>P.t+i*th+th/2;let o='';
-  for(let t=0;t<=tc;t++){const x=xp(t*step),z=t===0;o+=`<line x1="${x}" y1="${P.t}" x2="${x}" y2="${P.t+ph}" stroke="${z?'#111':'#e8e8e8'}" stroke-width="${z?1.5:1}"/>`;o+=`<text x="${x}" y="${P.t+ph+14}" text-anchor="middle" font-size="9.5" font-weight="600" fill="#111" font-family="'Source Sans 3',sans-serif">${t*step}</text>`;}
-  o+=`<line x1="${P.l}" y1="${P.t}" x2="${P.l}" y2="${P.t+ph}" stroke="#111" stroke-width="2"/>`;o+=`<line x1="${P.l}" y1="${P.t+ph}" x2="${P.l+pw}" y2="${P.t+ph}" stroke="#111" stroke-width="2"/>`;
-  s.forEach((c,i)=>{const bw=(c.val/sm)*pw,x0=P.l,y0=ym(i)-bh/2;o+=`<rect x="${x0}" y="${y0}" width="${bw}" height="${bh}" fill="#cc0000"/>`;o+=`<text x="${x0+bw+6}" y="${ym(i)}" dominant-baseline="middle" font-size="10" font-weight="600" fill="#111" font-family="'Source Sans 3',sans-serif">${c.val}</text>`;o+=`<text x="${P.l-6}" y="${ym(i)}" text-anchor="end" dominant-baseline="middle" font-size="10" font-weight="600" fill="#111" font-family="'Source Sans 3',sans-serif">${c.name}</text>`;});
-  svg.innerHTML=o;
+  const PAD={top:10,right:30,bottom:30,left:90};
+  const plotW=W-PAD.left-PAD.right;
+  const plotH=H-PAD.top-PAD.bottom;
+  const trackH=plotH/n;
+  const barH=Math.min(trackH*0.55,28);
+  const xPos=(v)=>PAD.left+(v/scaleMax)*plotW;
+  const yMid=(i)=>PAD.top+i*trackH+trackH/2;
+  let out='';
+  for(let t=0;t<=tickCount;t++){
+    const x=xPos(t*step);
+    const isZero=t===0;
+    out+=`<line x1="${x}" y1="${PAD.top}" x2="${x}" y2="${PAD.top+plotH}" stroke="${isZero?'#000':'#e8e8e8'}" stroke-width="${isZero?1.5:1}"/>`;
+    out+=`<text x="${x}" y="${PAD.top+plotH+14}" text-anchor="middle" font-size="9.5" font-weight="600" fill="#000" font-family="'Source Sans 3',sans-serif">${t*step}</text>`;
+  }
+  out+=`<line x1="${PAD.left}" y1="${PAD.top}" x2="${PAD.left}" y2="${PAD.top+plotH}" stroke="#000" stroke-width="2"/>`;
+  out+=`<line x1="${PAD.left}" y1="${PAD.top+plotH}" x2="${PAD.left+plotW}" y2="${PAD.top+plotH}" stroke="#000" stroke-width="2"/>`;
+  sorted.forEach((c,i)=>{
+    const bw=(c.val/scaleMax)*plotW,x0=PAD.left,y0=yMid(i)-barH/2;
+    out+=`<rect x="${x0}" y="${y0}" width="${bw}" height="${barH}" fill="#cc0000"/>`;
+    out+=`<text x="${x0+bw+6}" y="${yMid(i)}" dominant-baseline="middle" font-size="10" font-weight="600" fill="#000" font-family="'Source Sans 3',sans-serif">${c.val}</text>`;
+    out+=`<text x="${PAD.left-6}" y="${yMid(i)}" text-anchor="end" dominant-baseline="middle" font-size="10" font-weight="600" fill="#000" font-family="'Source Sans 3',sans-serif">${c.name}</text>`;
+  });
+  svg.innerHTML=out;
 }
-function renderLinien(ord,sm,step,tc){
-  const svg=document.getElementById('linien-svg'),W=600,H=260,P={t:20,r:40,b:40,l:44};
-  const pw=W-P.l-P.r,ph=H-P.t-P.b,n=ord.length;if(!n){svg.innerHTML='';return;}
-  const xi=15,uw=pw-2*xi,xp=i=>P.l+xi+(n>1?(i/(n-1))*uw:uw/2),yp=v=>P.t+ph-(v/sm)*ph;let o='';
-  for(let t=0;t<=tc;t++){const y=yp(t*step);o+=`<line x1="${P.l}" y1="${y}" x2="${P.l+pw}" y2="${y}" stroke="${t===0?'#111':'#e8e8e8'}" stroke-width="${t===0?1.5:1}"/>`;o+=`<text x="${P.l-6}" y="${y}" text-anchor="end" dominant-baseline="middle" font-size="9.5" font-weight="600" fill="#111" font-family="'Source Sans 3',sans-serif">${t*step}</text>`;}
-  o+=`<line x1="${P.l}" y1="${P.t}" x2="${P.l}" y2="${P.t+ph}" stroke="#111" stroke-width="2"/>`;o+=`<line x1="${P.l}" y1="${P.t+ph}" x2="${P.l+pw}" y2="${P.t+ph}" stroke="#111" stroke-width="2"/>`;
-  let ap=`M${xp(0)},${P.t+ph}`;ord.forEach((c,i)=>ap+=` L${xp(i)},${yp(c.val)}`);ap+=` L${xp(n-1)},${P.t+ph} Z`;
-  o+=`<path d="${ap}" fill="#cc0000" fill-opacity="0.08"/>`;
-  let lp=ord.map((c,i)=>`${i===0?'M':'L'}${xp(i)},${yp(c.val)}`).join(' ');
-  o+=`<path d="${lp}" fill="none" stroke="#cc0000" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>`;
-  ord.forEach((c,i)=>{const x=xp(i),y=yp(c.val);o+=`<circle cx="${x}" cy="${y}" r="4" fill="#cc0000" stroke="#fff" stroke-width="1.5"/>`;o+=`<text x="${x}" y="${y-10}" text-anchor="middle" font-size="9.5" font-weight="600" fill="#111" font-family="'Source Sans 3',sans-serif">${c.val}</text>`;o+=`<text x="${x}" y="${P.t+ph+14}" text-anchor="middle" font-size="9.5" font-weight="600" fill="#111" font-family="'Source Sans 3',sans-serif">${c.name}</text>`;});
-  svg.innerHTML=o;
+
+function renderLinien(ordered,scaleMax,step,tickCount) {
+  const svg=document.getElementById('linien-svg');
+  const W=600,H=260;
+  const PAD={top:20,right:40,bottom:40,left:44};
+  const plotW=W-PAD.left-PAD.right;
+  const plotH=H-PAD.top-PAD.bottom;
+  const n=ordered.length;
+  if(n===0){svg.innerHTML='';return;}
+  const xInset=15;
+  const usableW=plotW-2*xInset;
+  const xPos=(i)=>PAD.left+xInset+(n>1?(i/(n-1))*usableW:usableW/2);
+  const yPos=(v)=>PAD.top+plotH-(v/scaleMax)*plotH;
+  let out='';
+  for(let t=0;t<=tickCount;t++){
+    const y=yPos(t*step);
+    out+=`<line x1="${PAD.left}" y1="${y}" x2="${PAD.left+plotW}" y2="${y}" stroke="${t===0?'#000':'#e8e8e8'}" stroke-width="${t===0?1.5:1}"/>`;
+    out+=`<text x="${PAD.left-6}" y="${y}" text-anchor="end" dominant-baseline="middle" font-size="9.5" font-weight="600" fill="#000" font-family="'Source Sans 3',sans-serif">${t*step}</text>`;
+  }
+  out+=`<line x1="${PAD.left}" y1="${PAD.top}" x2="${PAD.left}" y2="${PAD.top+plotH}" stroke="#000" stroke-width="2"/>`;
+  out+=`<line x1="${PAD.left}" y1="${PAD.top+plotH}" x2="${PAD.left+plotW}" y2="${PAD.top+plotH}" stroke="#000" stroke-width="2"/>`;
+  let areaPath=`M${xPos(0)},${PAD.top+plotH}`;
+  ordered.forEach((c,i)=>areaPath+=` L${xPos(i)},${yPos(c.val)}`);
+  areaPath+=` L${xPos(n-1)},${PAD.top+plotH} Z`;
+  out+=`<path d="${areaPath}" fill="#cc0000" fill-opacity="0.08"/>`;
+  let linePath=ordered.map((c,i)=>`${i===0?'M':'L'}${xPos(i)},${yPos(c.val)}`).join(' ');
+  out+=`<path d="${linePath}" fill="none" stroke="#cc0000" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>`;
+  ordered.forEach((c,i)=>{
+    const x=xPos(i),y=yPos(c.val);
+    out+=`<circle cx="${x}" cy="${y}" r="4" fill="#cc0000" stroke="#fff" stroke-width="1.5"/>`;
+    out+=`<text x="${x}" y="${y-10}" text-anchor="middle" font-size="9.5" font-weight="600" fill="#000" font-family="'Source Sans 3',sans-serif">${c.val}</text>`;
+    out+=`<text x="${x}" y="${PAD.top+plotH+14}" text-anchor="middle" font-size="9.5" font-weight="600" fill="#000" font-family="'Source Sans 3',sans-serif">${c.name}</text>`;
+  });
+  svg.innerHTML=out;
 }
-function renderKreis(s){
-  const svg=document.getElementById('pie-svg'),leg=document.getElementById('pie-legend'),tot=s.reduce((a,c)=>a+c.val,0)||1,cx=190,cy=140,r=115;
-  let angle=-Math.PI/2,paths='',lh='';
-  s.forEach((c,i)=>{
-    const sl=(c.val/tot)*2*Math.PI,end=angle+sl,x1=cx+r*Math.cos(angle),y1=cy+r*Math.sin(angle),x2=cx+r*Math.cos(end),y2=cy+r*Math.sin(end),lg=sl>Math.PI?1:0,col=PIE_COLORS[i%PIE_COLORS.length];
-    paths+=`<path d="M${cx},${cy} L${x1},${y1} A${r},${r} 0 ${lg},1 ${x2},${y2} Z" fill="${col}" stroke="#fff" stroke-width="1.5"/>`;
-    const mid=angle+sl/2,lx=cx+r*.65*Math.cos(mid),ly=cy+r*.65*Math.sin(mid),pct=Math.round((c.val/tot)*100);
-    if(pct>=4)paths+=`<text x="${lx}" y="${ly}" text-anchor="middle" dominant-baseline="middle" font-size="11" font-weight="600" fill="#fff" font-family="'Source Sans 3',sans-serif">${pct}%</text>`;
-    lh+=`<div class="legend-item"><div class="legend-dot" style="background:${col}"></div><span>${c.name} (${c.val})</span></div>`;
+
+function renderKreis(sorted) {
+  const svg=document.getElementById('pie-svg');
+  const legend=document.getElementById('pie-legend');
+  const total=sorted.reduce((s,c)=>s+c.val,0)||1;
+  const cx=190,cy=140,r=115;
+  let angle=-Math.PI/2;
+  let paths='',legendHtml='';
+  sorted.forEach((c,i)=>{
+    const slice=(c.val/total)*2*Math.PI;
+    const end=angle+slice;
+    const x1=cx+r*Math.cos(angle),y1=cy+r*Math.sin(angle);
+    const x2=cx+r*Math.cos(end),y2=cy+r*Math.sin(end);
+    const large=slice>Math.PI?1:0;
+    const color=PIE_COLORS[i%PIE_COLORS.length];
+    paths+=`<path d="M${cx},${cy} L${x1},${y1} A${r},${r} 0 ${large},1 ${x2},${y2} Z" fill="${color}" stroke="#fff" stroke-width="1.5"/>`;
+    const mid=angle+slice/2;
+    const lx=cx+r*0.65*Math.cos(mid),ly=cy+r*0.65*Math.sin(mid);
+    const pct=Math.round((c.val/total)*100);
+    if(pct>=4) paths+=`<text x="${lx}" y="${ly}" text-anchor="middle" dominant-baseline="middle" font-size="11" font-weight="600" fill="#fff" font-family="'Source Sans 3',sans-serif">${pct}%</text>`;
+    legendHtml+=`<div class="legend-item"><div class="legend-dot" style="background:${color}"></div><span>${c.name} (${c.val})</span></div>`;
     angle=end;
   });
-  svg.innerHTML=paths;leg.innerHTML=lh;
-}
-function downloadPNG(){html2canvas(document.getElementById('chart-card'),{backgroundColor:'#fff',scale:2}).then(c=>{const a=document.createElement('a');a.download='diagramm.png';a.href=c.toDataURL('image/png');a.click();});}
-
-// ── CIRCLE LOADER ─────────────────────────────────────
-const CIRC=201.06;
-function showLoader(id,label){
-  document.getElementById(id).innerHTML=`<div class="loader-wrap" id="lw-${id}"><svg width="80" height="80" class="loader-svg"><circle class="ldr-bg" cx="40" cy="40" r="32"/><circle class="ldr-fg" id="la-${id}" cx="40" cy="40" r="32"/><text id="lp-${id}" x="40" y="47" text-anchor="middle" style="fill:var(--text);font-size:17px;font-family:'Playfair Display',serif;font-weight:700;transform:rotate(90deg);transform-origin:40px 40px">0%</text></svg><div class="ldr-label">${label}</div></div>`;
-}
-function setPct(id,pct){
-  const arc=document.getElementById('la-'+id),txt=document.getElementById('lp-'+id);
-  if(!arc||!txt)return;
-  arc.style.strokeDashoffset=CIRC-(pct/100)*CIRC;txt.textContent=Math.round(pct)+'%';
-}
-function animTo(id,target,ms,cb){
-  const start=performance.now();
-  const from=(()=>{const el=document.getElementById('la-'+id);if(!el)return 0;const cur=parseFloat(el.style.strokeDashoffset||CIRC);return Math.round((1-cur/CIRC)*100);})();
-  function step(now){const t=Math.min((now-start)/ms,1);const e=1-Math.pow(1-t,2);setPct(id,from+(target-from)*e);if(t<1)requestAnimationFrame(step);else if(cb)cb();}
-  requestAnimationFrame(step);
+  svg.innerHTML=paths;
+  legend.innerHTML=legendHtml;
 }
 
-// ── SPELL CHECK ───────────────────────────────────────
-const ERR_TYPES={
-  'rechtschreibung':{cls:'se-rs',color:'#f5c518',tc:'#000',label:'Rechtschreibung'},
-  'grammatik':{cls:'se-gr',color:'#3b82f6',tc:'#fff',label:'Grammatik'},
-  'satzzeichen':{cls:'se-sz',color:'#a855f7',tc:'#fff',label:'Satzzeichen'},
-  'grossschreibung':{cls:'se-gk',color:'#f97316',tc:'#000',label:'Groß-/Kleinschr.'},
-  'großschreibung':{cls:'se-gk',color:'#f97316',tc:'#000',label:'Groß-/Kleinschr.'},
-  'kleinschreibung':{cls:'se-gk',color:'#f97316',tc:'#000',label:'Groß-/Kleinschr.'},
-  'ausdruck':{cls:'se-au',color:'#06b6d4',tc:'#000',label:'Ausdruck'},
-  'satzstellung':{cls:'se-ss',color:'#ec4899',tc:'#fff',label:'Satzstellung'},
-  'wortfehler':{cls:'se-wf',color:'#84cc16',tc:'#000',label:'Wortfehler'},
-};
-function getET(t){const k=(t||'').toLowerCase();for(const[key,val]of Object.entries(ERR_TYPES))if(k.includes(key))return val;return{cls:'se-rs',color:'#f5c518',tc:'#000',label:t||'Fehler'};}
-function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
-
-async function runSpell(){
-  const text=document.getElementById('spell-input').value.trim();if(!text)return;
-  const btn=document.getElementById('spell-btn');btn.disabled=true;btn.innerHTML='<div class="mini-spin"></div> Prüft…';
-  document.getElementById('spell-errlist').style.display='none';
-  document.getElementById('spell-legend').style.display='none';
-  document.getElementById('spell-badge').style.display='none';
-  showLoader('spell-out','KI analysiert Ihren Text…');animTo('spell-out',88,5500);
-  try{
-    const raw=await apiCall(`Du bist ein präziser und strenger Textprüfer für deutschsprachige Texte.
-Kontext: Presseabteilung auf einem deutschen Roleplay-Discord-Server.
-KEINE Fehler: Discord-Formatierungen (**,*,||,>), Roleplay-Eigennamen, fiktive Orte.
-Prüfe ALLE Kategorien sehr gründlich:
-1. Rechtschreibung — falsch geschriebene Wörter
-2. Grammatik — Kasus, Numerus, Konjugation, Genus
-3. Satzzeichen — fehlende/falsche Kommas, Punkte, Anführungszeichen
-4. Großschreibung — Substantive, Satzanfänge, Eigennamen
-5. Ausdruck — unpassende oder umgangssprachliche Wortwahl
-6. Satzstellung — Wortstellung, V2-Regel, Satzbau
-7. Wortfehler — falsches Wort (z.B. "das"/"dass", "seit"/"seid")
-"wrong" MUSS exakt dem Text entsprechen. Sei STRENG.
-NUR reines JSON ohne Backticks:
-{"errors":[{"wrong":"exakt aus Text","correct":"Korrektur","type":"Rechtschreibung|Grammatik|Satzzeichen|Großschreibung|Ausdruck|Satzstellung|Wortfehler","explanation":"kurz"}]}
-Keine Fehler: {"errors":[]}`,text,1500);
-    let parsed;try{parsed=JSON.parse(raw.replace(/```json|```/g,'').trim());}catch(e){throw new Error('KI-Antwort konnte nicht verarbeitet werden.');}
-    const errors=parsed.errors||[];
-    animTo('spell-out',100,300,()=>setTimeout(()=>renderSpellResult(text,errors),120));
-  }catch(e){document.getElementById('spell-out').innerHTML=`<div class="placeholder"><div class="placeholder-icon">⚠️</div><p style="color:#ff6666">${esc(e.message)}</p></div>`;}
-  finally{btn.disabled=false;btn.innerHTML='Text prüfen';}
-}
-
-function renderSpellResult(text,errors){
-  const out=document.getElementById('spell-out'),legend=document.getElementById('spell-legend'),badge=document.getElementById('spell-badge'),list=document.getElementById('spell-errlist'),items=document.getElementById('spell-erritems');
-  let html=esc(text);
-  [...errors].sort((a,b)=>b.wrong.length-a.wrong.length).forEach(e=>{
-    const info=getET(e.type),safe=esc(e.wrong),re=new RegExp(safe.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'),'g');
-    html=html.replace(re,`<span class="se ${info.cls}" title="${esc(e.type)}: ${esc(e.correct)} — ${esc(e.explanation)}">${safe}</span>`);
+function downloadPNG() {
+  const card=document.getElementById('chart-card');
+  html2canvas(card,{backgroundColor:'#ffffff',scale:2}).then(canvas=>{
+    const link=document.createElement('a');
+    link.download='diagramm.png';
+    link.href=canvas.toDataURL('image/png');
+    link.click();
   });
-  out.innerHTML=html||'<em style="color:#555">Kein Text.</em>';
-  const usedTypes=[...new Set(errors.map(e=>e.type))];
-  if(usedTypes.length>0){legend.innerHTML=usedTypes.map(t=>{const i=getET(t);return`<div class="err-legend-item"><div class="err-legend-swatch" style="background:${i.color}"></div>${i.label}</div>`;}).join('');legend.style.display='flex';}
-  badge.textContent=errors.length>0?errors.length+' Fehler':'✓ Fehlerfrei';badge.style.color=errors.length>0?'#f5c518':'#22c55e';badge.style.display='inline';
-  if(errors.length>0){items.innerHTML=errors.map(e=>{const i=getET(e.type);return`<div class="err-item"><span class="err-word" style="background:${i.color};color:${i.tc}">${esc(e.wrong)}</span><span class="err-fix">→ <strong>${esc(e.correct)}</strong> <em style="color:var(--muted)">(${esc(e.type)})</em> — ${esc(e.explanation)}</span></div>`;}).join('');}
-  else{items.innerHTML='<div class="err-item" style="color:#22c55e">✓ Keine Fehler gefunden</div>';}
-  list.style.display='block';
 }
 
-function clearSpell(){
-  document.getElementById('spell-input').value='';document.getElementById('spell-cc').textContent='0 Zeichen';
-  document.getElementById('spell-out').innerHTML='<div class="placeholder"><div class="placeholder-icon">🔍</div><p>Text eingeben und auf „Text prüfen" klicken. Fehler werden farbig nach Typ markiert.</p></div>';
-  document.getElementById('spell-errlist').style.display='none';document.getElementById('spell-legend').style.display='none';document.getElementById('spell-badge').style.display='none';
+// ================================================================
+// SPELL CHECK
+// ================================================================
+function updateCharCount() {
+  const v = document.getElementById('spell-input').value;
+  document.getElementById('spell-char-count').textContent = v.length + ' Zeichen';
 }
 
-// ── IMPROVE ───────────────────────────────────────────
-function scoreColor(n){return n>=8?'#22c55e':n>=5?'#f5c518':'#cc0000';}
-function scoreLabel(n){return n>=9?'Hervorragend':n>=8?'Sehr gut':n>=7?'Gut':n>=6?'Befriedigend':n>=5?'Ausreichend':n>=4?'Verbesserungsbedarf':'Überarbeitung nötig';}
-
-function clearImprove(){
-  document.getElementById('improve-input').value='';
-  document.getElementById('improve-cc').textContent='0 Zeichen';
-  document.getElementById('improve-out').innerHTML='<div class="placeholder"><div class="placeholder-icon">✨</div><p>Text eingeben und auf „Text bewerten" klicken, um eine KI-Bewertung zu erhalten.</p></div>';
-  document.getElementById('improve-details').style.display='none';
-  document.getElementById('improve-badge').style.display='none';
+function clearSpell() {
+  document.getElementById('spell-input').value = '';
+  updateCharCount();
+  document.getElementById('spell-output').innerHTML = `
+    <div class="tool-placeholder">
+      <div class="icon">🔍</div>
+      <p>Text eingeben und auf „Jetzt prüfen" klicken.<br>Fehler werden hier gelb markiert.</p>
+    </div>`;
+  document.getElementById('spell-error-count').style.display = 'none';
+  document.getElementById('spell-errors-list').style.display = 'none';
 }
 
-async function runImprove(){
-  const text=document.getElementById('improve-input').value.trim();if(!text)return;
-  const btn=document.getElementById('improve-btn');btn.disabled=true;btn.innerHTML='<div class="mini-spin"></div> Bewertet…';
-  document.getElementById('improve-badge').style.display='none';
-  document.getElementById('improve-details').style.display='none';
-  showLoader('improve-out','KI bewertet Ihren Text…');animTo('improve-out',88,6000);
-  try{
-    const raw=await apiCall(`Du bist ein Experte für professionelle deutschsprachige Texte einer Presseabteilung auf einem Roleplay-Discord-Server. Discord-Markdown und RP-Begriffe sind normal. Bewerte Professionalität, Klarheit, Struktur und Wirkung.
-NUR reines JSON ohne Backticks: {"score":<1-10>,"summary":"2-3 Sätze","positives":["..."],"negatives":["..."],"suggestions":["..."]}`,text,1000);
-    let p;try{p=JSON.parse(raw.replace(/```json|```/g,'').trim());}catch(e){throw new Error('KI-Antwort konnte nicht verarbeitet werden.');}
-    const score=Math.min(10,Math.max(1,parseInt(p.score)||5)),color=scoreColor(score),label=scoreLabel(score);
-    animTo('improve-out',100,300,()=>setTimeout(()=>{
-      // Badge in panel-bar
-      const badge=document.getElementById('improve-badge');
-      badge.textContent=score+'/10 — '+label;badge.style.color=color;badge.style.display='inline-block';
-      // Score ring + summary in output-area (same style as spell-out)
-      const r=32,circ=2*Math.PI*r,offset=circ-(score/10)*circ;
-      document.getElementById('improve-out').innerHTML=`<div class="score-box" style="background:none;border:none;padding:0 0 18px 0;margin-bottom:18px;border-bottom:1px solid var(--border2);">
-        <div class="score-ring">
-          <svg width="70" height="70"><circle cx="35" cy="35" r="${r}" fill="none" stroke="var(--border2)" stroke-width="5"/><circle cx="35" cy="35" r="${r}" fill="none" stroke="${color}" stroke-width="5" stroke-linecap="round" stroke-dasharray="${circ}" stroke-dashoffset="${offset}"/></svg>
-          <div class="score-overlay"><div class="score-num" style="color:${color}">${score}</div><div class="score-den">/ 10</div></div>
+async function runSpellCheck() {
+  const text = document.getElementById('spell-input').value.trim();
+  if (!text) return;
+
+  const btn = document.getElementById('spell-btn');
+  btn.disabled = true;
+  btn.innerHTML = '<div class="spinner"></div> Prüft…';
+
+  const out = document.getElementById('spell-output');
+  out.innerHTML = '<div class="tool-loading"><div class="spinner"></div> KI analysiert Ihren Text…</div>';
+  document.getElementById('spell-errors-list').style.display = 'none';
+  document.getElementById('spell-error-count').style.display = 'none';
+
+  const systemPrompt = `Du bist ein Rechtschreib- und Grammatikprüfer für deutschsprachige Texte.
+Der Kontext: Texte für eine Presseabteilung auf einem deutschen Roleplay-Discord-Server. Es können Discord-typische Formatierungen vorkommen (z.B. **fett**, *kursiv*, ||spoiler||), diese sind KEINE Fehler.
+Roleplay-spezifische Eigennamen, fiktive Orte, RP-Begriffe und Fantasienamen sind ebenfalls KEINE Fehler.
+Prüfe ausschließlich Rechtschreibung, Grammatik und Zeichensetzung des deutschen Textes.
+Antworte NUR mit einem JSON-Objekt, ohne Markdown-Backticks oder Präambel.
+Format:
+{
+  "errors": [
+    {
+      "wrong": "fehlerhaftes Wort oder Phrase (exakt so wie im Text)",
+      "correct": "korrekte Version",
+      "type": "Rechtschreibung",
+      "explanation": "Kurze Erklärung auf Deutsch"
+    }
+  ]
+}
+Wenn keine Fehler: { "errors": [] }
+Das Feld "wrong" muss exakt dem Text entsprechen (Groß-/Kleinschreibung beachten).`;
+
+  try {
+    const raw = await callAI(systemPrompt, text, 'spell');
+    if (raw === null) {
+      out.innerHTML = `<div class="tool-placeholder"><div class="icon">⚙</div><p>Bitte zuerst einen KI-Anbieter in den Einstellungen konfigurieren.</p></div>`;
+      return;
+    }
+    const clean = raw.replace(/```json|```/g, '').trim();
+    const parsed = JSON.parse(clean);
+    const errors = parsed.errors || [];
+
+    let highlighted = escapeHtml(text);
+    const sortedErr = [...errors].sort((a, b) => b.wrong.length - a.wrong.length);
+    sortedErr.forEach(e => {
+      const safe = escapeHtml(e.wrong);
+      const regex = new RegExp(safe.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g');
+      highlighted = highlighted.replace(regex,
+        `<span class="spell-error" title="${escapeHtml(e.explanation)}\n→ ${escapeHtml(e.correct)} (${escapeHtml(e.type)})">${safe}</span>`);
+    });
+
+    out.innerHTML = highlighted || '<em style="color:#555">Kein Text.</em>';
+
+    const countEl = document.getElementById('spell-error-count');
+    countEl.textContent = errors.length + ' Fehler';
+    countEl.style.display = errors.length > 0 ? 'inline-block' : 'none';
+
+    const listWrap  = document.getElementById('spell-errors-list');
+    const listItems = document.getElementById('spell-errors-items');
+    if (errors.length > 0) {
+      listItems.innerHTML = errors.map(e => `
+        <div class="error-item">
+          <span class="error-word">${escapeHtml(e.wrong)}</span>
+          <span class="error-fix">→ <strong>${escapeHtml(e.correct)}</strong> <em style="color:#666">(${escapeHtml(e.type)})</em> — ${escapeHtml(e.explanation)}</span>
+        </div>`).join('');
+      listWrap.style.display = 'block';
+    } else {
+      listItems.innerHTML = '<div class="error-item" style="color:#22c55e">✓ Keine Fehler gefunden – Text ist korrekt</div>';
+      listWrap.style.display = 'block';
+    }
+
+  } catch(err) {
+    out.innerHTML = `<div style="color:#ff6666;padding:4px">Fehler: ${err.message}</div>`;
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = 'Jetzt prüfen';
+  }
+}
+
+function buildHighlightedText(text, matches) {
+  const typeMap = { 'misspelling': 'Rechtschreibung', 'grammar': 'Grammatik', 'typographical': 'Zeichensetzung', 'style': 'Stil', 'other': 'Sonstiges' };
+  const sorted = [...matches].sort((a, b) => a.offset - b.offset);
+  let result = '';
+  let cursor = 0;
+  sorted.forEach(m => {
+    if (m.offset < cursor) return; // überlappend, überspringen
+    result += escapeHtml(text.substring(cursor, m.offset));
+    const wrong = text.substr(m.offset, m.length);
+    const replacement = m.replacements[0] ? m.replacements[0].value : '?';
+    const typ = typeMap[m.rule.issueType] || 'Sonstiges';
+    const title = escapeHtml(`${m.message}\n→ ${replacement} (${typ})`);
+    result += `<span class="spell-error" title="${title}">${escapeHtml(wrong)}</span>`;
+    cursor = m.offset + m.length;
+  });
+  result += escapeHtml(text.substring(cursor));
+  return result;
+}
+
+function escapeHtml(str) {
+  return String(str)
+    .replace(/&/g,'&amp;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;')
+    .replace(/'/g,'&#39;');
+}
+
+// ================================================================
+// IMPROVE / TEXT RATING
+// ================================================================
+function updateImproveCharCount() {
+  const v = document.getElementById('improve-input').value;
+  document.getElementById('improve-char-count').textContent = v.length + ' Zeichen';
+}
+
+function clearImprove() {
+  document.getElementById('improve-input').value = '';
+  updateImproveCharCount();
+  document.getElementById('improve-result').innerHTML = `
+    <div class="tool-placeholder" style="flex:1">
+      <div class="icon">✨</div>
+      <p>Text eingeben und auf „Text bewerten" klicken.</p>
+    </div>`;
+  document.getElementById('improve-score-badge').style.display = 'none';
+}
+
+function scoreColor(n) {
+  if (n >= 8) return '#22c55e';
+  if (n >= 5) return '#f5c518';
+  return '#cc0000';
+}
+
+function scoreLabel(n) {
+  if (n >= 9) return 'Hervorragend';
+  if (n >= 8) return 'Sehr gut';
+  if (n >= 7) return 'Gut';
+  if (n >= 6) return 'Befriedigend';
+  if (n >= 5) return 'Ausreichend';
+  if (n >= 4) return 'Verbesserungsbedarf';
+  return 'Überarbeitung nötig';
+}
+
+async function runImprove() {
+  const text = document.getElementById('improve-input').value.trim();
+  if (!text) return;
+
+  const btn = document.getElementById('improve-btn');
+  btn.disabled = true;
+  btn.innerHTML = '<div class="spinner"></div> Bewertet…';
+
+  const result = document.getElementById('improve-result');
+  result.innerHTML = '<div class="tool-loading"><div class="spinner"></div> KI bewertet Ihren Text…</div>';
+
+  const systemPrompt = `Du bist ein Experte für professionelle deutschsprachige Texte, insbesondere für Pressemitteilungen und Ankündigungen auf einem Roleplay-Discord-Server.
+Der Kontext: Eine Presseabteilung auf einem deutschen RP-Server veröffentlicht Nachrichten, Berichte und Ankündigungen über Discord. Texte dürfen Discord-Markdown enthalten (**fett**, *kursiv*, > Zitat usw.) und können fiktive Orte, Charakternamen oder RP-spezifische Begriffe beinhalten – das ist normal und kein Fehler.
+Bewerte den Text auf Professionalität, Klarheit, Struktur und Wirkung im Discord/RP-Kontext.
+Antworte NUR mit einem JSON-Objekt, ohne Markdown-Backticks oder Präambel.
+Format:
+{
+  "score": <Zahl von 1 bis 10>,
+  "summary": "<2-3 Sätze Gesamtbewertung>",
+  "positives": ["<Was gut ist 1>", "<Was gut ist 2>", ...],
+  "negatives": ["<Was verbessert werden muss 1>", ...],
+  "suggestions": ["<Konkreter Verbesserungsvorschlag 1>", ...]
+}
+Alle Felder auf Deutsch. Sei konstruktiv und präzise.`;
+
+  try {
+    const raw = await callAI(systemPrompt, text, 'improve');
+    if (raw === null) { // user needs to configure settings
+      result.innerHTML = `<div class="tool-placeholder" style="flex:1"><div class="icon">⚙</div><p>Bitte zuerst einen KI-Anbieter in den Einstellungen konfigurieren.</p></div>`;
+      return;
+    }
+    const clean = raw.replace(/```json|```/g, '').trim();
+    const parsed = JSON.parse(clean);
+
+    const score = Math.min(10, Math.max(1, parseInt(parsed.score) || 5));
+    const color = scoreColor(score);
+    const label = scoreLabel(score);
+
+    const badge = document.getElementById('improve-score-badge');
+    badge.textContent = score + '/10 — ' + label;
+    badge.style.display = 'inline-block';
+    badge.style.color = color;
+    badge.style.fontWeight = '700';
+    badge.style.letterSpacing = '0';
+
+    const posHtml = (parsed.positives || []).map(p =>
+      `<div class="feedback-item"><div class="fi-dot pos"></div><div>${escapeHtml(p)}</div></div>`).join('');
+    const negHtml = (parsed.negatives || []).map(n =>
+      `<div class="feedback-item"><div class="fi-dot neg"></div><div>${escapeHtml(n)}</div></div>`).join('');
+    const sugHtml = (parsed.suggestions || []).map(s =>
+      `<div class="feedback-item"><div class="fi-dot sug"></div><div>${escapeHtml(s)}</div></div>`).join('');
+
+    result.innerHTML = `
+      <div class="score-box">
+        <div class="score-circle" style="border-color:${color}">
+          <div class="score-number" style="color:${color}">${score}</div>
+          <div class="score-denom">/ 10</div>
         </div>
-        <div class="score-info"><h2 style="color:${color};font-size:14px;font-weight:700;margin-bottom:4px;">${label}</h2><p style="font-size:12px;color:var(--text2);line-height:1.5;">${esc(p.summary||'')}</p></div>
-      </div>`;
-      // Feedback in errors-strip (same as spell error list)
-      const ph=(p.positives||[]).map(x=>`<div class="err-item"><span class="err-word" style="background:#166534;color:#86efac;min-width:52px;text-align:center;">✓</span><span class="err-fix" style="color:var(--text2)">${esc(x)}</span></div>`).join('');
-      const nh=(p.negatives||[]).map(x=>`<div class="err-item"><span class="err-word" style="background:#7f1d1d;color:#fca5a5;min-width:52px;text-align:center;">✗</span><span class="err-fix" style="color:var(--text2)">${esc(x)}</span></div>`).join('');
-      const sh=(p.suggestions||[]).map(x=>`<div class="err-item"><span class="err-word" style="background:#1e3a5f;color:#93c5fd;min-width:52px;text-align:center;">→</span><span class="err-fix" style="color:var(--text2)">${esc(x)}</span></div>`).join('');
-      const detailEl=document.getElementById('improve-items');
-      detailEl.innerHTML=`
-        ${ph?`<div class="errors-strip-head" style="color:#22c55e">✓ Stärken</div>${ph}`:''}
-        ${nh?`<div class="errors-strip-head" style="color:#cc0000;border-top:1px solid var(--border)">✗ Schwächen</div>${nh}`:''}
-        ${sh?`<div class="errors-strip-head" style="color:#3b82f6;border-top:1px solid var(--border)">→ Verbesserungsvorschläge</div>${sh}`:''}`;
-      document.getElementById('improve-details').style.display='block';
-    },120));
-  }catch(e){document.getElementById('improve-out').innerHTML=`<div class="placeholder"><div class="placeholder-icon">⚠️</div><p style="color:#ff6666">${esc(e.message)}</p></div>`;}
-  finally{btn.disabled=false;btn.innerHTML='Text bewerten';}
+        <div class="score-info">
+          <h2 style="color:${color}">${label}</h2>
+          <p>${escapeHtml(parsed.summary || '')}</p>
+        </div>
+      </div>
+      ${posHtml ? `<div class="improve-section">
+        <h3 class="h3-pos">✓ Stärken</h3>
+        ${posHtml}
+      </div>` : ''}
+      ${negHtml ? `<div class="improve-section">
+        <h3 class="h3-neg">✗ Schwächen</h3>
+        ${negHtml}
+      </div>` : ''}
+      ${sugHtml ? `<div class="improve-section">
+        <h3 class="h3-sug">→ Verbesserungsvorschläge</h3>
+        ${sugHtml}
+      </div>` : ''}`;
+
+  } catch(err) {
+    result.innerHTML = `<div style="color:#ff6666;padding:24px">Fehler: ${err.message}</div>`;
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = 'Text bewerten';
+  }
 }
 
-// ── INIT ──────────────────────────────────────────────
-buildSidebar();setType('saulen');showPage('spell');
+// ================================================================
+// INIT
+// ================================================================
+buildSidebar();
+setType('saulen');
+showPage('spell'); // default tab shown
 </script>
 </body>
 </html>
